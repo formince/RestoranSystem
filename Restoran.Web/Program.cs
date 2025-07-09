@@ -1,12 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using Restoran.Core.Data;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<RestaurantDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

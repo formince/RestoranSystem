@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36301.6 d17.14
+VisualStudioVersion = 17.14.36301.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restoran.Core", "Restoran.Core\Restoran.Core.csproj", "{105F42F6-B1C0-40CA-BAF0-EDEFC254D220}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restoran.Web", "Restoran.Web\Restoran.Web.csproj", "{8F7762A2-94CE-4C0C-8FB4-16DC5EBD5764}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restoran.Api", "Restoran.Api\Restoran.Api.csproj", "{37449BD8-D435-4C4F-BAE8-2477A6215843}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Restoran.Web", "Restoran.Web\Restoran.Web.csproj", "{52788390-6DA1-417A-8D9C-AB18BF25FA78}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{105F42F6-B1C0-40CA-BAF0-EDEFC254D220}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{105F42F6-B1C0-40CA-BAF0-EDEFC254D220}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{105F42F6-B1C0-40CA-BAF0-EDEFC254D220}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8F7762A2-94CE-4C0C-8FB4-16DC5EBD5764}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8F7762A2-94CE-4C0C-8FB4-16DC5EBD5764}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8F7762A2-94CE-4C0C-8FB4-16DC5EBD5764}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8F7762A2-94CE-4C0C-8FB4-16DC5EBD5764}.Release|Any CPU.Build.0 = Release|Any CPU
 		{37449BD8-D435-4C4F-BAE8-2477A6215843}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{37449BD8-D435-4C4F-BAE8-2477A6215843}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37449BD8-D435-4C4F-BAE8-2477A6215843}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37449BD8-D435-4C4F-BAE8-2477A6215843}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52788390-6DA1-417A-8D9C-AB18BF25FA78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52788390-6DA1-417A-8D9C-AB18BF25FA78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52788390-6DA1-417A-8D9C-AB18BF25FA78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52788390-6DA1-417A-8D9C-AB18BF25FA78}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
