@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Restoran.Core.Entity;
 
 namespace Restoran.Core.Business.Services.Implementations
 {
@@ -22,38 +23,63 @@ namespace Restoran.Core.Business.Services.Implementations
             _mapper = mapper;
         }
 
-        // DbContext'i her işlem için doğrudan ve bağımsız olarak oluşturan yardımcı metot
-        private RestaurantDbContext CreateDbContext()
-        {
-            // Bağlantı dizesinin uygulama başlangıcında ayarlandığından emin oluyoruz
-            if (string.IsNullOrEmpty(AppConfiguration.DefaultConnectionString))
-            {
-                throw new InvalidOperationException("Veritabanı bağlantı dizesi yapılandırılmadı. Lütfen AppConfiguration.DefaultConnectionString'in uygulama başlangıcında ayarlandığından emin olun.");
-            }
-
-            var optionsBuilder = new DbContextOptionsBuilder<RestaurantDbContext>();
-
-            // Veritabanı sağlayıcısını ve bağlantı dizesini ayarlıyoruz
-            optionsBuilder.UseSqlServer(AppConfiguration.DefaultConnectionString);
-            // Eğer PostgreSQL kullanıyorsanız yukarıdaki satırı yorum satırı yapın ve aşağıdaki satırı aktif edin:
-            // optionsBuilder.UseNpgsql(AppConfiguration.DefaultConnectionString); 
-
-            return new RestaurantDbContext(optionsBuilder.Options);
-        }
-
         public async Task<List<ProductListDto>> GetProductsAsync()
         {
-            // Veritabanı bağlantısı 'using' bloğu içinde kurulur ve iş bitince serbest bırakılır
-            using (var context = CreateDbContext())
-            {
-                var products = await context.Products
-                                            // Category bilgisini de dahil et, DTO için gerekli
-                                            .Include(p => p.Category)
-                                            .ToListAsync();
+            // Using pattern ile doğrudan bağlantı - proje gereksinimine uygun
+            using var context = AppConfiguration.CreateDbContext();
+            
+            var products = await context.Products
+                                      .Include(p => p.Category)
+                                      .ToListAsync();
 
-                // Entity'leri DTO'lara dönüştür ve geri dön
-                return _mapper.Map<List<ProductListDto>>(products);
-            }
+            return _mapper.Map<List<ProductListDto>>(products);
+        }
+
+        // Diğer CRUD işlemleri
+        public async Task<ProductDetailDto?> GetProductByIdAsync(int id)
+        {
+            using var context = AppConfiguration.CreateDbContext();
+            
+            var product = await context.Products
+                                      .Include(p => p.Category)
+                                      .FirstOrDefaultAsync(p => p.Id == id);
+
+            return product != null ? _mapper.Map<ProductDetailDto>(product) : null;
+        }
+
+        public async Task<bool> CreateProductAsync(ProductCreateDto dto)
+        {
+            using var context = AppConfiguration.CreateDbContext();
+            
+            var product = _mapper.Map<Product>(dto);
+            await context.Products.AddAsync(product);
+            
+            return await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateProductAsync(int id, ProductUpdateDto dto)
+        {
+            using var context = AppConfiguration.CreateDbContext();
+            
+            var product = await context.Products.FindAsync(id);
+            if (product == null) return false;
+
+            _mapper.Map(dto, product);
+            
+            return await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> DeleteProductAsync(int id)
+        {
+            using var context = AppConfiguration.CreateDbContext();
+            
+            var product = await context.Products.FindAsync(id);
+            if (product == null) return false;
+
+            // Soft delete
+            product.IsActive = false;
+            
+            return await context.SaveChangesAsync() > 0;
         }
     }
 }

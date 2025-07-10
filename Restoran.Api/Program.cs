@@ -1,29 +1,26 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Restoran.Core.Business.MappingProfiles;
+using Restoran.Core.Business.Services.Implementations;
+using Restoran.Core.Business.Services.Interfaces;
 using Restoran.Core.Data;
 using Restoran.Core.Statics;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.  
-builder.Services.AddDbContext<RestaurantDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Connection string'i uygulama başlangıcında ayarla
+AppConfiguration.SetConnectionString(
+    builder.Configuration.GetConnectionString("DefaultConnection")!);
 
-AppConfiguration.DefaultConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-if (string.IsNullOrEmpty(AppConfiguration.DefaultConnectionString))
-{
-    throw new InvalidOperationException("Connection string 'DefaultConnection' not found in appsettings.json.");
-}
-
-
-
+// Sadece AutoMapper ve Service'leri kaydet
+builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(ProductProfile).Assembly));
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle  
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Restoran.Core.Business.MappingProfiles.ProductProfile).Assembly));
 
 var app = builder.Build();
 
