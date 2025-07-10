@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Restoran.Core.DTOs.Reservation
+{
+    public class ReservationCreateDto
+    {
+        public string CustomerName { get; set; } = string.Empty;
+        public string CustomerPhone { get; set; } = string.Empty;
+        public DateTime ReservationDateTime { get; set; }
+        public int NumberOfGuests { get; set; }
+        public int UserId { get; set; } // Rezervasyon yapan kullanıcı
+        public int TableId { get; set; } // Rezerve edilen masa
+    }
+}

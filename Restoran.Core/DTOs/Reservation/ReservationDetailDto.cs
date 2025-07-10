@@ -1,0 +1,23 @@
+﻿using Restoran.Core.Statics.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Restoran.Core.DTOs.Reservation
+{
+    public class ReservationDetailDto
+    {
+        public int Id { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public string CustomerPhone { get; set; } = string.Empty;
+        public DateTime ReservationDateTime { get; set; }
+        public int NumberOfGuests { get; set; }
+        public ReservationStatus Status { get; set; }
+        public int UserId { get; set; }
+        public string? Username { get; set; } // Rezervasyon yapan kullanıcının adı
+        public int TableId { get; set; }
+        public int TableNumber { get; set; } // Masa numarası
+    }
+}
