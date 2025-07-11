@@ -8,7 +8,7 @@ namespace Restoran.Core.DTOs.Category
 {
     public class CategoryUpdateDto
     {
-        public int Id { get; set; } // Update için Id gerekli
+        public int Id { get; set; } 
         public string Name { get; set; } = string.Empty;
     }
 }

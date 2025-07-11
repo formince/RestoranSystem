@@ -15,6 +15,6 @@ namespace Restoran.Core.DTOs.Product
         public int StockQuantity { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public int CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty; // Detayda kategori adı da olsun
+        public string CategoryName { get; set; } = string.Empty; 
     }
 }

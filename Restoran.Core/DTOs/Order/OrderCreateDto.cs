@@ -8,7 +8,7 @@ namespace Restoran.Core.DTOs.Order
 {
     public class OrderCreateDto
     {
-        public int UserId { get; set; } // Siparişi veren kullanıcının Id'si
+        public int UserId { get; set; } 
         public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }
 }

@@ -14,6 +14,6 @@ namespace Restoran.Core.DTOs.Reservation
         public DateTime ReservationDateTime { get; set; }
         public int NumberOfGuests { get; set; }
         public ReservationStatus Status { get; set; }
-        public int TableNumber { get; set; } // Hangi masaya rezervasyon yapıldığını göstermek için
+        public int TableNumber { get; set; } 
     }
 }

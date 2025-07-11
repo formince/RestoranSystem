@@ -14,7 +14,7 @@ namespace Restoran.Core.DTOs.Reservation
         public string CustomerPhone { get; set; } = string.Empty;
         public DateTime ReservationDateTime { get; set; }
         public int NumberOfGuests { get; set; }
-        public ReservationStatus Status { get; set; } // Statüsü de güncellenebilir
+        public ReservationStatus Status { get; set; } 
         public int TableId { get; set; }
     }
 }

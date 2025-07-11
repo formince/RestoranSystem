@@ -10,6 +10,6 @@ namespace Restoran.Core.DTOs.Table
     {
         public int TableNumber { get; set; }
         public int Capacity { get; set; }
-        public bool IsAvailable { get; set; } = true; // Varsayılan olarak müsait olsun
+        public bool IsAvailable { get; set; } = true; 
     }
 }

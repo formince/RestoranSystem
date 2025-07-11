@@ -1,8 +1,53 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.Extensions.Configuration;
 using Restoran.Core.Entity;
 
 namespace Restoran.Core.Data
 {
+
+    public class RestoranDbContextFactory : IDesignTimeDbContextFactory<RestaurantDbContext>
+    {
+        private static string _connectionString=null!;
+        private static DbContextOptions<RestaurantDbContext> _options= null!;
+        //private static AppDbContext _db;
+
+        public RestaurantDbContext CreateDbContext()
+        {
+            return CreateDbContext(null!);
+        }
+
+        public RestaurantDbContext CreateDbContext(string[] args)
+        {
+            if (string.IsNullOrEmpty(_connectionString) || _options == null)
+                LoadConnectionString();
+
+            return new RestaurantDbContext(_options!);
+        }
+
+        private static void LoadConnectionString()
+        {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+            _connectionString = configuration.GetConnectionString(Environment.GetEnvironmentVariable("DefaultConnection")!)!;
+            //Console.WriteLine(_connectionString);
+
+            // Builder
+            var builder = new DbContextOptionsBuilder<RestaurantDbContext>();
+            builder.UseSqlServer(_connectionString); // , (opt) => opt.EnableRetryOnFailure(3)
+            _options = builder.Options;
+        }
+    }
+
+
+
+
+
+
+
+
     public class RestaurantDbContext : DbContext
     {
         public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options) : base(options)

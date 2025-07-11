@@ -13,6 +13,6 @@ namespace Restoran.Core.DTOs.Order
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
         public OrderStatus Status { get; set; }
-        public string? CustomerUsername { get; set; } // Hangi kullanıcıya ait olduğunu göstermek için
+        public string? CustomerUsername { get; set; } 
     }
 }

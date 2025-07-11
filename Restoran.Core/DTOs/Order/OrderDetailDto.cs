@@ -14,6 +14,6 @@ namespace Restoran.Core.DTOs.Order
         public decimal TotalAmount { get; set; }
         public OrderStatus Status { get; set; }
         public string? CustomerUsername { get; set; }
-        public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>(); // Sipariş detayları
+        public List<OrderItemDto> Items { get; set; } = new List<OrderItemDto>(); 
     }
 }

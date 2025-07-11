@@ -16,8 +16,8 @@ namespace Restoran.Core.DTOs.Reservation
         public int NumberOfGuests { get; set; }
         public ReservationStatus Status { get; set; }
         public int UserId { get; set; }
-        public string? Username { get; set; } // Rezervasyon yapan kullanıcının adı
+        public string? Username { get; set; } 
         public int TableId { get; set; }
-        public int TableNumber { get; set; } // Masa numarası
+        public int TableNumber { get; set; } 
     }
 }

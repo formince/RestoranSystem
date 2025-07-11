@@ -20,7 +20,7 @@ namespace Restoran.Core.Entity
         public bool IsAvailable { get; set; } = true;
         
         [StringLength(100)]
-        public string Location { get; set; } = string.Empty; // örn: "Balkon", "Ana Salon", "Bahçe"
+        public string Location { get; set; } = string.Empty; 
         
         [StringLength(200)]
         public string Description { get; set; } = string.Empty;
