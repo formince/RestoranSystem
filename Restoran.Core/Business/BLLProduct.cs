@@ -2,6 +2,7 @@
 using Restoran.Core.Data;
 using Restoran.Core.DTOs.Product;
 using Restoran.Core.Entity;
+using Restoran.Core.Integrations.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,13 @@ using System.Threading.Tasks;
 
 namespace Restoran.Core.Business
 {
-    public class BLLProduct // Sınıf adı BLLProduct olarak değiştirildi
+    public class BLLProduct 
     {
-        public BLLProduct()
+        private readonly string _webRootPath;
+
+        public BLLProduct(string webRootPath = "")
         {
-            // DI ile ilgili hiçbir şey burada olmayacak.
+            _webRootPath = webRootPath;
         }
 
         private RestaurantDbContext CreateContext()
@@ -38,8 +41,9 @@ namespace Restoran.Core.Business
                     Id = product.Id,
                     Name = product.Name,
                     Price = product.Price,
-                    CategoryName = product.Category?.Name!
-                    
+                    CategoryName = product.Category?.Name!,
+                    ImageUrl = FileService.GetFileUrl(product.ImageUrl),
+                    StockQuantity = product.StockQuantity
                 });
             }
             return productListDtos;
@@ -61,52 +65,122 @@ namespace Restoran.Core.Business
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                CategoryName = product.Category?.Name!
-               
+                CategoryName = product.Category?.Name!,
+                ImageUrl = FileService.GetFileUrl(product.ImageUrl),
+                StockQuantity = product.StockQuantity,
+                DisplayOrder = product.DisplayOrder
             };
         }
 
-        public async Task<bool> CreateProductAsync(ProductCreateDto dto)
+        public async Task<(bool Success, string Message)> CreateProductAsync(ProductCreateDto dto, byte[]? imageData = null, string? imageFileName = null)
         {
             using var context = CreateContext();
 
-            var product = new Product
+            try
             {
-                Name = dto.Name,
-                Price = dto.Price,
-                CategoryId = dto.CategoryId,
-                Description = dto.Description
-            };
-            await context.Products.AddAsync(product);
+                var product = new Product
+                {
+                    Name = dto.Name,
+                    Price = dto.Price,
+                    CategoryId = dto.CategoryId,
+                    Description = dto.Description,
+                    StockQuantity = dto.StockQuantity,
+                    DisplayOrder = 0
+                };
 
-            return await context.SaveChangesAsync() > 0;
+                // Resim yükleme işlemi
+                if (imageData != null && imageFileName != null)
+                {
+                    var fileResult = FileService.SaveFile(imageData, imageFileName, _webRootPath);
+                    if (!fileResult.Success)
+                    {
+                        return (false, fileResult.Message);
+                    }
+                    product.ImageUrl = fileResult.FileName!;
+                }
+
+                await context.Products.AddAsync(product);
+                var result = await context.SaveChangesAsync() > 0;
+
+                return result ? (true, "Ürün başarıyla eklendi.") : (false, "Ürün eklenemedi.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Hata: {ex.Message}");
+            }
         }
 
-        public async Task<bool> UpdateProductAsync(int id, ProductUpdateDto dto)
+        public async Task<(bool Success, string Message)> UpdateProductAsync(int id, ProductUpdateDto dto, byte[]? imageData = null, string? imageFileName = null)
         {
             using var context = CreateContext();
 
-            var product = await context.Products.FindAsync(id);
-            if (product == null) return false;
+            try
+            {
+                var product = await context.Products.FindAsync(id);
+                if (product == null) 
+                    return (false, "Ürün bulunamadı.");
 
-            product.Name = dto.Name;
-            product.Price = dto.Price;
-            product.CategoryId = dto.CategoryId;
-            product.Description = dto.Description;
+                var oldImageUrl = product.ImageUrl;
 
-            return await context.SaveChangesAsync() > 0;
+                product.Name = dto.Name;
+                product.Price = dto.Price;
+                product.CategoryId = dto.CategoryId;
+                product.Description = dto.Description;
+                product.StockQuantity = dto.StockQuantity;
+
+                // Resim güncelleme işlemi
+                if (imageData != null && imageFileName != null)
+                {
+                    var fileResult = FileService.SaveFile(imageData, imageFileName, _webRootPath);
+                    if (!fileResult.Success)
+                    {
+                        return (false, fileResult.Message);
+                    }
+                    
+                    // Yeni resim yüklendiyse eskisini sil
+                    if (!string.IsNullOrEmpty(oldImageUrl))
+                    {
+                        FileService.DeleteFile(oldImageUrl, _webRootPath);
+                    }
+                    
+                    product.ImageUrl = fileResult.FileName!;
+                }
+
+                var result = await context.SaveChangesAsync() > 0;
+                return result ? (true, "Ürün başarıyla güncellendi.") : (false, "Ürün güncellenemedi.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Hata: {ex.Message}");
+            }
         }
 
-        public async Task<bool> DeleteProductAsync(int id)
+        public async Task<(bool Success, string Message)> DeleteProductAsync(int id)
         {
             using var context = CreateContext();
 
-            var product = await context.Products.FindAsync(id);
-            if (product == null) return false;
+            try
+            {
+                var product = await context.Products.FindAsync(id);
+                if (product == null) 
+                    return (false, "Ürün bulunamadı.");
 
-            product.IsActive = false;
+                product.IsActive = false;
 
-            return await context.SaveChangesAsync() > 0;
+                var result = await context.SaveChangesAsync() > 0;
+                
+                // Ürün silindiğinde resmi de sil
+                if (result && !string.IsNullOrEmpty(product.ImageUrl))
+                {
+                    FileService.DeleteFile(product.ImageUrl, _webRootPath);
+                }
+
+                return result ? (true, "Ürün başarıyla silindi.") : (false, "Ürün silinemedi.");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Hata: {ex.Message}");
+            }
         }
     }
 }

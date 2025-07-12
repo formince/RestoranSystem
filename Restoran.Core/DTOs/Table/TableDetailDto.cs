@@ -9,7 +9,7 @@ namespace Restoran.Core.DTOs.Table
     public class TableDetailDto
     {
         public int Id { get; set; }
-        public int TableNumber { get; set; }
+        public string TableNumber { get; set; } = string.Empty;
         public int Capacity { get; set; }
         public bool IsAvailable { get; set; }
     }

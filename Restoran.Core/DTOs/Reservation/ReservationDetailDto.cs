@@ -18,6 +18,6 @@ namespace Restoran.Core.DTOs.Reservation
         public int UserId { get; set; }
         public string? Username { get; set; } 
         public int TableId { get; set; }
-        public int TableNumber { get; set; } 
+        public string TableNumber { get; set; } = string.Empty; 
     }
 }
