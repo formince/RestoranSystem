@@ -80,6 +80,9 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// Admin kullanıcısı oluştur
+await CreateAdminUser();
+
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
@@ -95,3 +98,64 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Admin kullanıcısı oluşturma metodu
+static async Task CreateAdminUser()
+{
+    var authBll = new BLLAuth();
+    
+    // Önce admin kullanıcısının var olup olmadığını kontrol et
+    var adminUser = await authBll.LoginAsync(new Restoran.Core.DTOs.User.UserLoginDto 
+    { 
+        Username = "admin", 
+        Password = "123456" 
+    });
+    
+    // Admin kullanıcısı yoksa oluştur
+    if (adminUser == null)
+    {
+        var adminRegisterDto = new Restoran.Core.DTOs.User.UserRegisterDto
+        {
+            FirstName = "Admin",
+            LastName = "User",
+            Username = "admin",
+            Email = "admin@restoran.com",
+            Phone = "555-0000",
+            Password = "admin123456"
+        };
+        
+        var result = await authBll.RegisterAsync(adminRegisterDto);
+        
+        if (result.Success)
+        {
+            // Admin rolünü ayarla
+            var userBll = new BLLUser();
+            var users = await userBll.GetUsersAsync();
+            var createdAdmin = users.FirstOrDefault(u => u.Username == "admin");
+            
+            if (createdAdmin != null)
+            {
+                var updateDto = new Restoran.Core.DTOs.User.UserUpdateDto
+                {
+                    FirstName = "Admin",
+                    LastName = "User", 
+                    Username = "admin",
+                    Email = "admin@restoran.com",
+                    Phone = "555-0000",
+                    Role = Restoran.Core.Statics.Enums.UserRole.Admin
+                };
+                
+                await userBll.UpdateUserAsync(createdAdmin.Id, updateDto);
+                Console.WriteLine("Admin kullanıcısı oluşturuldu: Username=admin, Password=123456");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Admin kullanıcısı oluşturulamadı: {result.Message}");
+        }
+    }
+    else
+    {
+        Console.WriteLine("Admin kullanıcısı zaten mevcut.");
+    }
+}
