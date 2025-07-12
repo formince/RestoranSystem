@@ -59,8 +59,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 
-// Authorization
-builder.Services.AddAuthorization();
+// Authorization - Role-based policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("CustomerOrAdmin", policy => policy.RequireRole("Customer", "Admin"));
+    options.AddPolicy("AllUsers", policy => policy.RequireRole("Guest", "Customer", "Admin"));
+});
 
 // CORS
 builder.Services.AddCors(options =>

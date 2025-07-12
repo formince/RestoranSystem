@@ -31,7 +31,7 @@ namespace Restoran.Core.Data
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .Build();
-            _connectionString = configuration.GetConnectionString(Environment.GetEnvironmentVariable("DefaultConnection")!)!;
+            _connectionString = configuration.GetConnectionString("DefaultConnection")!;
             //Console.WriteLine(_connectionString);
 
             // Builder

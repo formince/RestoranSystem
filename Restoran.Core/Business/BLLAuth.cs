@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Restoran.Core.Data;
 using Restoran.Core.DTOs.User;
 using Restoran.Core.Entity;
+using Restoran.Core.Statics.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,6 +87,7 @@ namespace Restoran.Core.Business
                 Username = dto.Username,
                 Email = dto.Email,
                 Phone = dto.Phone,
+                Role = UserRole.Customer, // Default role Customer
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password) // BCrypt ile güvenli hash
             };
 
