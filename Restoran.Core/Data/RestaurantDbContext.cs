@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Restoran.Core.Entity;
+using Restoran.Core.Statics.Enums;
 
 namespace Restoran.Core.Data
 {
@@ -124,6 +125,114 @@ namespace Restoran.Core.Data
             modelBuilder.Entity<OrderDetail>()
                 .Property(od => od.UnitPrice)
                 .HasColumnType("decimal(18,2)");
+
+            // Seed Data - Admin User
+            SeedData(modelBuilder);
+        }
+
+        private void SeedData(ModelBuilder modelBuilder)
+        {
+            // Admin User Seed
+            modelBuilder.Entity<User>().HasData(
+                new User
+                {
+                    Id = 1,
+                    FirstName = "Admin",
+                    LastName = "User",
+                    Username = "admin",
+                    Email = "admin@restaurant.com",
+                    Phone = "5551234567",
+                    Role = UserRole.Admin,
+                    PasswordHash = "$2a$11$9YhJ8KHK5LfjQLOZqCpBtu7P8P.eqKhY0IiYKT4d5XqHt0r7RrEVK", // admin123 hash'i
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                }
+            );
+
+            // Sample Categories
+            modelBuilder.Entity<Category>().HasData(
+                new Category
+                {
+                    Id = 1,
+                    Name = "Ana Yemekler",
+                    Description = "Nefis ana yemek çeşitleri",
+                    DisplayOrder = 1,
+                    ImageUrl = "",
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                },
+                new Category
+                {
+                    Id = 2,
+                    Name = "İçecekler",
+                    Description = "Serinletici içecekler",
+                    DisplayOrder = 2,
+                    ImageUrl = "",
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                }
+            );
+
+            // Sample Products
+            modelBuilder.Entity<Product>().HasData(
+                new Product
+                {
+                    Id = 1,
+                    Name = "Tavuk Şiş",
+                    Description = "Közde pişmiş tavuk şiş",
+                    Price = 45.00m,
+                    CategoryId = 1,
+                    StockQuantity = 50,
+                    DisplayOrder = 1,
+                    ImageUrl = "",
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                },
+                new Product
+                {
+                    Id = 2,
+                    Name = "Cola",
+                    Description = "Soğuk coca cola",
+                    Price = 8.00m,
+                    CategoryId = 2,
+                    StockQuantity = 100,
+                    DisplayOrder = 1,
+                    ImageUrl = "",
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                }
+            );
+
+            // Sample Tables
+            modelBuilder.Entity<Table>().HasData(
+                new Table
+                {
+                    Id = 1,
+                    TableNumber = "T001",
+                    Capacity = 4,
+                    IsAvailable = true,
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                },
+                new Table
+                {
+                    Id = 2,
+                    TableNumber = "T002",
+                    Capacity = 6,
+                    IsAvailable = true,
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                },
+                new Table
+                {
+                    Id = 3,
+                    TableNumber = "T003",
+                    Capacity = 2,
+                    IsAvailable = true,
+                    CreatedDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                    IsActive = true
+                }
+            );
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

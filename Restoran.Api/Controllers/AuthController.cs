@@ -1,12 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Restoran.Core.Business;
 using Restoran.Core.DTOs.User;
+using System.Security.Claims;
 
 namespace Restoran.Api.Controllers
 {
     public class AuthController : BaseController
     {
-
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserRegisterDto dto)
         {
@@ -44,5 +45,7 @@ namespace Restoran.Api.Controllers
                 }
             });
         }
+
+
     }
 } 
