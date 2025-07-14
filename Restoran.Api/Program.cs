@@ -108,7 +108,7 @@ static async Task CreateAdminUser()
     var adminUser = await authBll.LoginAsync(new Restoran.Core.DTOs.User.UserLoginDto 
     { 
         Username = "admin", 
-        Password = "123456" 
+        Password = "admin123456" 
     });
     
     // Admin kullanıcısı yoksa oluştur

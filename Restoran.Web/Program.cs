@@ -1,5 +1,5 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Restoran.Core.Business.MappingProfiles;
 using Restoran.Core.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,12 +7,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
+// Kimlik doðrulama servislerini ekle
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login"; // Giriþ sayfasý yolu
+        options.LogoutPath = "/Account/Logout"; // Çýkýþ sayfasý yolu
+        options.AccessDeniedPath = "/Account/AccessDenied"; // Eriþim engellendi sayfasý
+    });
 
 
 // Add services to the container.  
 builder.Services.AddDbContext<RestaurantDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+var app = builder.Build();
+
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -24,10 +37,15 @@ if (!app.Environment.IsDevelopment())
 
 
 // Fix for CS1503: Use a lambda to configure AutoMapper  
-builder.Services.AddAutoMapper(cfg => cfg.AddProfile<ProductProfile>());
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+
+// Kimlik doðrulama ve yetkilendirme middleware'lerini ekle
+app.UseAuthentication(); // ÖNEMLÝ: Authentication middleware'i
+app.UseAuthorization();
 
 app.UseRouting();
 

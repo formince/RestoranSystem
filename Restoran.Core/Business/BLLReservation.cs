@@ -38,7 +38,8 @@ namespace Restoran.Core.Business
                 {
                     Id = reservation.Id,
                     CustomerName = reservation.CustomerName,
-                    ReservationDateTime = reservation.ReservationDateTime,
+                    StartDateTime = reservation.StartDateTime,
+                    EndDateTime = reservation.EndDateTime,
                     NumberOfGuests = reservation.NumberOfGuests,
                     Status = reservation.Status,
                     TableNumber = reservation.Table?.TableNumber ?? string.Empty
@@ -63,7 +64,8 @@ namespace Restoran.Core.Business
                 Id = reservation.Id,
                 CustomerName = reservation.CustomerName,
                 CustomerPhone = reservation.CustomerPhone,
-                ReservationDateTime = reservation.ReservationDateTime,
+                StartDateTime = reservation.StartDateTime,
+                EndDateTime = reservation.EndDateTime,
                 NumberOfGuests = reservation.NumberOfGuests,
                 Status = reservation.Status,
                 UserId = reservation.UserId,
@@ -78,15 +80,15 @@ namespace Restoran.Core.Business
             using var context = CreateContext();
 
             // 1. Gelecek tarih kontrolü
-            if (!IsFutureDate(dto.ReservationDateTime))
+            if (!IsFutureDate(dto.EndDateTime))
                 return (false, "Geçmiş tarih için rezervasyon yapılamaz");
 
             // 2. Çalışma saatleri kontrolü
-            if (!IsWorkingHours(dto.ReservationDateTime))
+            if (!IsWorkingHours(dto.EndDateTime))
                 return (false, "Çalışma saatleri 09:00 - 22:00 arasındadır");
 
             // 3. Masa müsait mi?
-            if (!await IsTableAvailableAsync(dto.TableId, dto.ReservationDateTime))
+            if (!await IsTableAvailableAsync(dto.TableId, dto.StartDateTime,dto.EndDateTime))
                 return (false, "Bu masa seçilen tarih ve saatte müsait değil");
 
             // 4. Masa kapasitesi yeterli mi?
@@ -98,7 +100,8 @@ namespace Restoran.Core.Business
             {
                 CustomerName = dto.CustomerName,
                 CustomerPhone = dto.CustomerPhone,
-                ReservationDateTime = dto.ReservationDateTime,
+                StartDateTime = dto.StartDateTime,
+                EndDateTime = dto.EndDateTime,
                 NumberOfGuests = dto.NumberOfGuests,
                 UserId = dto.UserId,
                 TableId = dto.TableId
@@ -118,7 +121,8 @@ namespace Restoran.Core.Business
 
             reservation.CustomerName = dto.CustomerName;
             reservation.CustomerPhone = dto.CustomerPhone;
-            reservation.ReservationDateTime = dto.ReservationDateTime;
+            reservation.StartDateTime = reservation.StartDateTime;
+            reservation.EndDateTime = reservation.EndDateTime;
             reservation.NumberOfGuests = dto.NumberOfGuests;
             reservation.Status = dto.Status;
             reservation.TableId = dto.TableId;
@@ -139,18 +143,18 @@ namespace Restoran.Core.Business
         }
 
         // Validation methodları
-        private async Task<bool> IsTableAvailableAsync(int tableId, DateTime reservationDateTime)
+        private async Task<bool> IsTableAvailableAsync(int tableId, DateTime newStart, DateTime newEnd)
         {
             using var context = CreateContext();
-            
-            // Aynı masa, aynı saatte başka rezervasyon var mı?
-            var existingReservation = await context.Reservations
-                .FirstOrDefaultAsync(r => r.TableId == tableId && 
-                                         r.ReservationDateTime.Date == reservationDateTime.Date &&
-                                         r.ReservationDateTime.Hour == reservationDateTime.Hour &&
-                                         r.Status != ReservationStatus.Cancelled);
-            
-            return existingReservation == null;
+
+            var hasConflict = await context.Reservations
+                .AnyAsync(r =>
+                    r.TableId == tableId &&
+                    r.Status != ReservationStatus.Cancelled &&
+                    !(newEnd <= r.StartDateTime || newStart >= r.EndDateTime)
+                );
+
+            return !hasConflict;
         }
 
         private async Task<bool> IsTableCapacityOkAsync(int tableId, int numberOfGuests)
