@@ -1,0 +1,69 @@
+﻿@model Restoran.Core.DTOs.Category.CategoryCreateDto
+
+@{
+    ViewData["Title"] = "Kategori Ekle";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <a href="@Url.Action("Categories")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Geri Dön
+                </a>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <form asp-action="AddCategory" method="post" enctype="multipart/form-data">
+                                <div class="mb-3">
+                                    <label asp-for="Name" class="form-label">Kategori Adı *</label>
+                                    <input asp-for="Name" class="form-control" placeholder="Kategori adını giriniz">
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Description" class="form-label">Açıklama</label>
+                                    <textarea asp-for="Description" class="form-control" rows="3" 
+                                              placeholder="Kategori açıklaması (opsiyonel)"></textarea>
+                                    <span asp-validation-for="Description" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="DisplayOrder" class="form-label">Görüntülenme Sırası *</label>
+                                    <input asp-for="DisplayOrder" type="number" class="form-control" 
+                                           placeholder="1, 2, 3..." value="1">
+                                    <div class="form-text">Kategorilerin listede hangi sırada görüneceğini belirler.</div>
+                                    <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="imageData" class="form-label">Kategori Resmi</label>
+                                    <input type="file" id="imageData" name="imageData" class="form-control" 
+                                           accept="image/*">
+                                    <div class="form-text">JPG, PNG veya JPEG formatında resim yükleyebilirsiniz.</div>
+                                </div>
+
+                                <div class="d-flex justify-content-between">
+                                    <a href="@Url.Action("Categories")" class="btn btn-secondary">İptal</a>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> Kategoriyi Kaydet
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

@@ -1,0 +1,128 @@
+﻿@model Restoran.Core.DTOs.User.UserDetailDto
+
+@{
+    ViewData["Title"] = "Kullanıcı Detayı";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <div class="btn-group">
+                    <a href="@Url.Action("Users")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Geri Dön
+                    </a>
+                    <a href="@Url.Action("UpdateUser", new { id = Model.Id })" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Düzenle
+                    </a>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row mb-4">
+                                <div class="col-md-4 text-center">
+                                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" 
+                                         style="width: 120px; height: 120px; font-size: 48px;">
+                                        @Model.FirstName.FirstOrDefault()@Model.LastName.FirstOrDefault()
+                                    </div>
+                                    <h4 class="mb-1">@Model.FirstName @Model.LastName</h4>
+                                    @switch (Model.Role.ToString())
+                                    {
+                                        case "Admin":
+                                            <span class="badge bg-danger fs-6">
+                                                <i class="fas fa-crown me-1"></i>Yönetici
+                                            </span>
+                                            break;
+                                        case "Customer":
+                                            <span class="badge bg-success fs-6">
+                                                <i class="fas fa-user me-1"></i>Müşteri
+                                            </span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary fs-6">@Model.Role</span>
+                                            break;
+                                    }
+                                </div>
+                                <div class="col-md-8">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td width="30%" class="fw-bold text-muted">
+                                                    <i class="fas fa-user me-2"></i>Kullanıcı Adı:
+                                                </td>
+                                                <td>
+                                                    <code class="bg-light p-1 rounded">@Model.Username</code>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">
+                                                    <i class="fas fa-envelope me-2"></i>E-posta:
+                                                </td>
+                                                <td>
+                                                    <a href="mailto:@Model.Email" class="text-decoration-none">
+                                                        @Model.Email
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">
+                                                    <i class="fas fa-phone me-2"></i>Telefon:
+                                                </td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.Phone))
+                                                    {
+                                                        <a href="tel:@Model.Phone" class="text-decoration-none">
+                                                            @Model.Phone
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Belirtilmemiş</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">
+                                                    <i class="fas fa-id-badge me-2"></i>Kullanıcı ID:
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">#@Model.Id</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between">
+                                        <a href="@Url.Action("Users")" class="btn btn-outline-secondary">
+                                            <i class="fas fa-list"></i> Kullanıcı Listesi
+                                        </a>
+                                        <div class="btn-group">
+                                            <a href="@Url.Action("UpdateUser", new { id = Model.Id })" class="btn btn-primary">
+                                                <i class="fas fa-edit"></i> Bilgileri Düzenle
+                                            </a>
+                                            <a href="@Url.Action("DeleteUser", new { id = Model.Id })" 
+                                               class="btn btn-outline-danger"
+                                               onclick="return confirm('Bu kullanıcıyı silmek istediğinize emin misiniz?')">
+                                                <i class="fas fa-trash"></i> Sil
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

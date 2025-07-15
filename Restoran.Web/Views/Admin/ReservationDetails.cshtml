@@ -1,0 +1,186 @@
+﻿@model Restoran.Core.DTOs.Reservation.ReservationDetailDto
+
+@{
+    ViewData["Title"] = "Rezervasyon Detayı";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">@ViewData["Title"] - #@Model.Id</h2>
+                <div class="btn-group">
+                    <a href="@Url.Action("Reservations")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Geri Dön
+                    </a>
+                    @if (Model.Status.ToString() != "Cancelled")
+                    {
+                        <a href="@Url.Action("CancelReservation", new { id = Model.Id })" 
+                           class="btn btn-danger"
+                           onclick="return confirm('Bu rezervasyonu iptal etmek istediğinize emin misiniz?')">
+                            <i class="fas fa-ban"></i> İptal Et
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-check me-2"></i>Rezervasyon Bilgileri
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td width="40%" class="fw-bold text-muted">
+                                                    <i class="fas fa-user me-2"></i>Müşteri Adı:
+                                                </td>
+                                                <td>
+                                                    <strong>@Model.CustomerName</strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">
+                                                    <i class="fas fa-phone me-2"></i>Telefon:
+                                                </td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(Model.CustomerPhone))
+                                                    {
+                                                        <a href="tel:@Model.CustomerPhone" class="text-decoration-none">
+                                                            @Model.CustomerPhone
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Belirtilmemiş</span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">
+                                                    <i class="fas fa-users me-2"></i>Kişi Sayısı:
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-info">@Model.NumberOfGuests kişi</span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless">
+                                        <tbody>
+                                            <tr>
+                                                <td width="40%" class="fw-bold text-muted">
+                                                    <i class="fas fa-chair me-2"></i>Masa:
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-primary">@Model.TableNumber</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">
+                                                    <i class="fas fa-calendar me-2"></i>Tarih:
+                                                </td>
+                                                <td>
+                                                    <strong>@Model.StartDateTime.ToString("dd MMMM yyyy, dddd")</strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold text-muted">
+                                                    <i class="fas fa-clock me-2"></i>Saat:
+                                                </td>
+                                                <td>
+                                                    <strong>@Model.StartDateTime.ToString("HH:mm") - @Model.EndDateTime.ToString("HH:mm")</strong>
+                                                    <small class="text-muted d-block">
+                                                        (@((Model.EndDateTime - Model.StartDateTime).TotalHours.ToString("0.#")) saat)
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Durum Bilgisi
+                            </h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                @switch (Model.Status.ToString())
+                                {
+                                    case "Confirmed":
+                                        <span class="badge bg-success fs-5 p-3">
+                                            <i class="fas fa-check-circle me-2"></i>Onaylandı
+                                        </span>
+                                        break;
+                                    case "Pending":
+                                        <span class="badge bg-warning fs-5 p-3">
+                                            <i class="fas fa-clock me-2"></i>Beklemede
+                                        </span>
+                                        break;
+                                    case "Cancelled":
+                                        <span class="badge bg-danger fs-5 p-3">
+                                            <i class="fas fa-times-circle me-2"></i>İptal Edildi
+                                        </span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary fs-5 p-3">@Model.Status</span>
+                                        break;
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(Model.Username))
+                            {
+                                <div class="mt-3">
+                                    <small class="text-muted">Sistem Kullanıcısı:</small>
+                                    <br>
+                                    <code>@Model.Username</code>
+                                </div>
+                            }
+
+                            <div class="mt-3">
+                                <small class="text-muted">Rezervasyon ID:</small>
+                                <br>
+                                <span class="badge bg-info">#@Model.Id</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.StartDateTime <= DateTime.Now.AddHours(2) && Model.StartDateTime > DateTime.Now.AddHours(-2))
+                    {
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Yaklaşan Rezervasyon!</strong>
+                            <br>
+                            Bu rezervasyon yakında başlayacak veya devam ediyor.
+                        </div>
+                    }
+                    else if (Model.EndDateTime < DateTime.Now)
+                    {
+                        <div class="alert alert-secondary mt-3">
+                            <i class="fas fa-history me-2"></i>
+                            <strong>Geçmiş Rezervasyon</strong>
+                            <br>
+                            Bu rezervasyon tamamlanmış.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

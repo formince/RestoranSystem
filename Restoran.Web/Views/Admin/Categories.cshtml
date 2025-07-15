@@ -1,0 +1,103 @@
+﻿@model List<Restoran.Core.DTOs.Category.CategoryListDto>
+
+@{
+    ViewData["Title"] = "Kategori Yönetimi";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <a href="@Url.Action("AddCategory")" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Yeni Kategori Ekle
+                </a>
+            </div>
+
+            @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Resim</th>
+                                        <th>Kategori Adı</th>
+                                        <th>Açıklama</th>
+                                        <th>Sıralama</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var category in Model.OrderBy(c => c.DisplayOrder))
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(category.ImageUrl))
+                                                {
+                                                    <img src="@category.ImageUrl" alt="@category.Name" 
+                                                         class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-light d-flex align-items-center justify-content-center" 
+                                                         style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-folder text-muted"></i>
+                                                    </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong>@category.Name</strong>
+                                            </td>
+                                            <td>
+                                                <span class="text-muted">
+                                                    @(string.IsNullOrEmpty(category.Description) ? "Açıklama yok" : 
+                                                      category.Description.Length > 100 ? category.Description.Substring(0, 100) + "..." : category.Description)
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">@category.DisplayOrder</span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("UpdateCategory", new { id = category.Id })" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("DeleteCategory", new { id = category.Id })" 
+                                                       class="btn btn-sm btn-outline-danger"
+                                                       onclick="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Henüz hiç kategori eklenmemiş.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

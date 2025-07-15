@@ -1,0 +1,141 @@
+﻿@model List<Restoran.Core.DTOs.Reservation.ReservationListDto>
+
+@{
+    ViewData["Title"] = "Rezervasyonlar";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                        <i class="fas fa-filter"></i> Filtrele
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="?status=all">Tümü</a></li>
+                        <li><a class="dropdown-item" href="?status=confirmed">Onaylanmış</a></li>
+                        <li><a class="dropdown-item" href="?status=pending">Beklemede</a></li>
+                        <li><a class="dropdown-item" href="?status=cancelled">İptal Edilmiş</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Müşteri</th>
+                                        <th>Masa</th>
+                                        <th>Tarih & Saat</th>
+                                        <th>Kişi Sayısı</th>
+                                        <th>Durum</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reservation in Model.OrderByDescending(r => r.StartDateTime))
+                                    {
+                                        <tr class="@(reservation.StartDateTime < DateTime.Now ? "table-secondary" : "")">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                                         style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                    <div>
+                                                        <strong>@reservation.CustomerName</strong>
+                                                        <br>
+                                                        <small class="text-muted">#@reservation.Id</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">
+                                                    <i class="fas fa-chair me-1"></i>@reservation.TableNumber
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>@reservation.StartDateTime.ToString("dd.MM.yyyy")</strong>
+                                                    <br>
+                                                    <small class="text-muted">
+                                                        @reservation.StartDateTime.ToString("HH:mm") - @reservation.EndDateTime.ToString("HH:mm")
+                                                    </small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-users me-1"></i>@reservation.NumberOfGuests
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @switch (reservation.Status.ToString())
+                                                {
+                                                    case "Confirmed":
+                                                        <span class="badge bg-success">
+                                                            <i class="fas fa-check me-1"></i>Onaylandı
+                                                        </span>
+                                                        break;
+                                                    case "Pending":
+                                                        <span class="badge bg-warning">
+                                                            <i class="fas fa-clock me-1"></i>Beklemede
+                                                        </span>
+                                                        break;
+                                                    case "Cancelled":
+                                                        <span class="badge bg-danger">
+                                                            <i class="fas fa-times me-1"></i>İptal
+                                                        </span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@reservation.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("ReservationDetails", new { id = reservation.Id })" 
+                                                       class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    @if (reservation.Status.ToString() != "Cancelled")
+                                                    {
+                                                        <a href="@Url.Action("CancelReservation", new { id = reservation.Id })" 
+                                                           class="btn btn-sm btn-outline-danger"
+                                                           onclick="return confirm('Bu rezervasyonu iptal etmek istediğinize emin misiniz?')">
+                                                            <i class="fas fa-ban"></i>
+                                                        </a>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Toplam @Model.Count rezervasyon bulundu.
+                    </small>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Henüz hiç rezervasyon yapılmamış.
+                </div>
+            }
+        </div>
+    </div>
+</div>
