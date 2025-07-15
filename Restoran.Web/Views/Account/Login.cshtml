@@ -1,27 +1,60 @@
 ﻿@model Restoran.Core.DTOs.User.UserLoginDto
+
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = "Giriş Yap";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Login</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card mt-5">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h4 class="card-title">Giriş Yap</h4>
+                        <p class="text-muted small">Hesabınıza giriş yapın</p>
+                    </div>
 
+                    <form asp-action="Login" method="post" novalidate>
+                        <div class="mb-3">
+                            <label asp-for="Username" class="form-label">Kullanıcı Adı</label>
+                            <input asp-for="Username" class="form-control" 
+                                   placeholder="Kullanıcı adınızı giriniz" autofocus>
+                            <span asp-validation-for="Username" class="text-danger small"></span>
+                        </div>
 
-<form asp-action="Login" method="post" novalidate>
-    <div class="form-group">
-        <label>Kullanıcı Adı</label>
-        <input asp-for="Username" class="form-control" />
-        <span asp-validation-for="Username" class="text-danger"></span>
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label">Şifre</label>
+                            <input asp-for="Password" type="password" class="form-control" 
+                                   placeholder="Şifrenizi giriniz">
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Giriş Yap</button>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <small class="text-muted">Hesabınız yok mu?</small>
+                        <a href="@Url.Action("Register", "Account")" class="btn btn-link btn-sm p-0">
+                            Kayıt Ol
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <a href="@Url.Action("Index", "Home")" class="text-muted text-decoration-none small">
+                    ← Ana Sayfaya Dön
+                </a>
+            </div>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label>Şifre</label>
-        <input asp-for="Password" type="password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">Giriş Yap</button>
-</form>
+</div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

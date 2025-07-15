@@ -27,9 +27,15 @@ namespace Restoran.Web.Controllers
         }
 
         [HttpGet]
-        public  IActionResult AddProduct()
+        public async Task<IActionResult> AddProduct()
         {
             ViewData["Title"] = "Ürün Ekle";
+            
+            // Kategorileri çekip ViewBag'e koy
+            var categoryBll = new BLLCategory();
+            var categories = await categoryBll.GetCategoriesAsync();
+            ViewBag.Categories = categories;
+            
             return View();
         }
 
@@ -38,6 +44,11 @@ namespace Restoran.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                // Hata durumunda kategorileri tekrar yükle
+                var categoryBll = new BLLCategory();
+                var categories = await categoryBll.GetCategoriesAsync();
+                ViewBag.Categories = categories;
+                
                 ViewData["Title"] = "Yeni Ürün Ekle";
                 return View(dto);
             }
@@ -60,6 +71,11 @@ namespace Restoran.Web.Controllers
 
             if (!result.Success)
             {
+                // Hata durumunda kategorileri tekrar yükle
+                var categoryBll = new BLLCategory();
+                var categories = await categoryBll.GetCategoriesAsync();
+                ViewBag.Categories = categories;
+                
                 ModelState.AddModelError("", result.Message);
                 ViewData["Title"] = "Yeni Ürün Ekle";
                 return View(dto);
@@ -72,25 +88,33 @@ namespace Restoran.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateProduct(int id)
         {
-            if(!ModelState.IsValid)
-            {
-                ViewData["Title"] = "urun guncelle";
-                return View();
-            }
-
             var bll = new BLLProduct();
 
-            // Ürün detaylarını çekmek için bir metot (BLL'de tanımlı olmalı)
-            var productDtos = await bll.GetProductByIdAsync(id);
+            // Ürün detaylarını çek
+            var productDetail = await bll.GetProductByIdAsync(id);
 
-            if (productDtos == null)
+            if (productDetail == null)
                 return NotFound();
 
-            // Ürün bilgilerini ProductUpdateDto'ya dönüştürelim
-          
+            // ProductDetailDto'yu ProductUpdateDto'ya dönüştür
+            var productUpdateDto = new ProductUpdateDto
+            {
+                Id = productDetail.Id,
+                Name = productDetail.Name,
+                Description = productDetail.Description,
+                Price = productDetail.Price,
+                StockQuantity = productDetail.StockQuantity,
+                ImageUrl = productDetail.ImageUrl,
+                CategoryId = productDetail.CategoryId
+            };
+
+            // Kategorileri çekip ViewBag'e koy
+            var categoryBll = new BLLCategory();
+            var categories = await categoryBll.GetCategoriesAsync();
+            ViewBag.Categories = categories;
 
             ViewData["Title"] = "Ürün Güncelle";
-            return View(productDtos); // View'a ProductUpdateDto gönderiyoruz
+            return View(productUpdateDto);
         }
 
         [HttpPost]
@@ -98,8 +122,13 @@ namespace Restoran.Web.Controllers
         {
             if(!ModelState.IsValid)
             {
+                // Hata durumunda kategorileri tekrar yükle
+                var categoryBll = new BLLCategory();
+                var categories = await categoryBll.GetCategoriesAsync();
+                ViewBag.Categories = categories;
+                
                 ViewData["Title"] = "Ürün Güncelle";
-                return View();
+                return View("UpdateProduct", dto);
             }
 
             var bll = new BLLProduct();
@@ -120,12 +149,17 @@ namespace Restoran.Web.Controllers
 
             if (result.Success)
             {
-                return RedirectToAction("Index"); // Başarılıysa ürün listesine yönlendir
+                return RedirectToAction("Products"); // Başarılıysa ürün listesine yönlendir
             }
 
+            // Hata durumunda kategorileri tekrar yükle
+            var categoryBllError = new BLLCategory();
+            var categoriesError = await categoryBllError.GetCategoriesAsync();
+            ViewBag.Categories = categoriesError;
+            
             ModelState.AddModelError("", result.Message);
             ViewData["Title"] = "Ürün Güncelle";
-            return View("EditProduct", dto); // Hata varsa formu tekrar göster
+            return View("UpdateProduct", dto); // Hata varsa formu tekrar göster
         }
 
         public async  Task<IActionResult> DeleteProduct(int id)
@@ -251,20 +285,23 @@ namespace Restoran.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateTable(int id)
         {
-            if(!ModelState.IsValid)
-            {
-                ViewData["Title"] = "Masa Güncelle";
-                return View();
-            }
-
             var bll = new BLLTable();
-            var table = await bll.GetTableByIdAsync(id);
+            var tableDetail = await bll.GetTableByIdAsync(id);
 
-            if (table == null)
+            if (tableDetail == null)
                 return NotFound();
 
+            // TableDetailDto'yu TableUpdateDto'ya dönüştür
+            var tableUpdateDto = new TableUpdateDto
+            {
+                Id = tableDetail.Id,
+                TableNumber = tableDetail.TableNumber,
+                Capacity = tableDetail.Capacity,
+                IsAvailable = tableDetail.IsAvailable
+            };
+
             ViewData["Title"] = "Masa Güncelle";
-            return View(table);
+            return View(tableUpdateDto);
         }
 
         [HttpPost]
@@ -273,7 +310,7 @@ namespace Restoran.Web.Controllers
             if (!ModelState.IsValid)
             {
                 ViewData["Title"] = "Masa Güncelle";
-                return View("EditTable", dto);
+                return View("UpdateTable", dto);
             }
 
             var bll = new BLLTable();
@@ -283,7 +320,7 @@ namespace Restoran.Web.Controllers
             {
                 ModelState.AddModelError("", result.Message);
                 ViewData["Title"] = "Masa Güncelle";
-                return View("EditTable", dto);
+                return View("UpdateTable", dto);
             }
 
             return RedirectToAction("Tables");
@@ -291,12 +328,6 @@ namespace Restoran.Web.Controllers
 
         public async Task<IActionResult> DeleteTable(int id)
         {
-            if(!ModelState.IsValid)
-            {
-                ViewData["Title"] = "Masa Sil";
-                return View();
-            }
-
             var bll = new BLLTable();
             await bll.DeleteTableAsync(id);
             return RedirectToAction("Tables");
@@ -343,12 +374,6 @@ namespace Restoran.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateUser(int id)
         {
-            if(!ModelState.IsValid)
-            {
-                ViewData["Title"] = "Kullanıcı Güncelle";
-                return View();
-            }
-
             var bll = new BLLUser();
             var user = await bll.GetUserByIdAsync(id);
 
@@ -358,6 +383,7 @@ namespace Restoran.Web.Controllers
             // UserDetailDto'yu UserUpdateDto'ya map edelim
             var updateDto = new UserUpdateDto
             {
+                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Username = user.Username,
@@ -394,12 +420,6 @@ namespace Restoran.Web.Controllers
 
         public async Task<IActionResult> DeleteUser(int id)
         {
-            if(!ModelState.IsValid)
-            {
-                ViewData["Title"] = "Kullanıcı Sil";
-                return View();
-            }
-
             var bll = new BLLUser();
             await bll.DeleteUserAsync(id);
             return RedirectToAction("Users");
@@ -408,12 +428,6 @@ namespace Restoran.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UserDetails(int id)
         {
-            if(!ModelState.IsValid)
-            {
-                ViewData["Title"] = "Kullanıcı Detayı";
-                return View();
-            }
-
             var bll = new BLLUser();
             var user = await bll.GetUserByIdAsync(id);
 
@@ -478,12 +492,6 @@ namespace Restoran.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> UpdateCategory(int id)
         {
-            if(!ModelState.IsValid)
-            {
-                ViewData["Title"] = "Kategori Güncelle";
-                return View();
-            }
-
             var bll = new BLLCategory();
             var category = await bll.GetCategoryByIdAsync(id);
 
@@ -531,12 +539,6 @@ namespace Restoran.Web.Controllers
 
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            if(!ModelState.IsValid)
-            {
-                ViewData["Title"] = "Kategori Sil";
-                return View();
-            }
-
             var bll = new BLLCategory();
             var result = await bll.DeleteCategoryAsync(id);
             

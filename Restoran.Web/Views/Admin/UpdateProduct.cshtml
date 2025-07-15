@@ -35,7 +35,13 @@
                                             <label asp-for="CategoryId" class="form-label">Kategori *</label>
                                             <select asp-for="CategoryId" class="form-select">
                                                 <option value="">Kategori seçiniz</option>
-                                                @* TODO: Kategoriler dropdown'da doldurulacak *@
+                                                @if (ViewBag.Categories != null)
+                                                {
+                                                    @foreach (var category in (List<Restoran.Core.DTOs.Category.CategoryListDto>)ViewBag.Categories)
+                                                    {
+                                                        <option value="@category.Id" selected="@(Model.CategoryId == category.Id)">@category.Name</option>
+                                                    }
+                                                }
                                             </select>
                                             <span asp-validation-for="CategoryId" class="text-danger"></span>
                                         </div>
