@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace Restoran.Core.Business
 {
-    public class BLLAuth // Sınıf adı BLLAuth olarak değiştirildi
+    public class BLLAuth 
     {
         public BLLAuth()
         {
-            // DI ile ilgili hiçbir şey burada olmayacak.
+            
         }
 
         private RestaurantDbContext CreateContext()
@@ -27,13 +27,13 @@ namespace Restoran.Core.Business
         {
             using var context = CreateContext();
 
-            // Önce kullanıcıyı username ile bul
+            
             var user = await context.Users
                 .FirstOrDefaultAsync(u => u.Username == dto.Username);
 
             if (user == null) return null;
 
-            // Şifre doğrula - BCrypt ile
+            
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return null;
 
@@ -49,7 +49,7 @@ namespace Restoran.Core.Business
             };
         }
 
-        // JWT Token ile giriş - API için
+       
         public async Task<(bool Success, string Message, string? Token)> LoginWithJwtAsync(UserLoginDto dto)
         {
             var userDetail = await LoginAsync(dto);
@@ -66,17 +66,17 @@ namespace Restoran.Core.Business
         {
             using var context = CreateContext();
 
-            // 1. Kullanıcı adı kontrolü
+            
             var existingUser = await context.Users
                 .FirstOrDefaultAsync(u => u.Username == dto.Username);
             if (existingUser != null) return (false, "Bu kullanıcı adı zaten kullanılıyor");
 
-            // 2. Email kontrolü
+            
             var existingEmail = await context.Users
                 .FirstOrDefaultAsync(u => u.Email == dto.Email);
             if (existingEmail != null) return (false, "Bu email adresi zaten kullanılıyor");
 
-            // 3. Basit şifre kontrolü
+            
             if (string.IsNullOrEmpty(dto.Password) || dto.Password.Length < 6)
                 return (false, "Şifre en az 6 karakter olmalıdır");
 
@@ -87,8 +87,8 @@ namespace Restoran.Core.Business
                 Username = dto.Username,
                 Email = dto.Email,
                 Phone = dto.Phone,
-                Role = UserRole.Customer, // Default role Customer
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password) // BCrypt ile güvenli hash
+                Role = UserRole.Customer, 
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password) 
             };
 
             await context.Users.AddAsync(user);

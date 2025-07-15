@@ -77,7 +77,7 @@ namespace Restoran.Core.Business
                     DisplayOrder = dto.DisplayOrder
                 };
 
-                // Resim yükleme işlemi
+               
                 if (imageData != null && imageFileName != null)
                 {
                     var fileResult = FileService.SaveFile(imageData, imageFileName, _webRootPath);
@@ -115,7 +115,7 @@ namespace Restoran.Core.Business
                 category.Description = dto.Description;
                 category.DisplayOrder = dto.DisplayOrder;
 
-                // Resim güncelleme işlemi
+                
                 if (imageData != null && imageFileName != null)
                 {
                     var fileResult = FileService.SaveFile(imageData, imageFileName, _webRootPath);
@@ -124,7 +124,7 @@ namespace Restoran.Core.Business
                         return (false, fileResult.Message);
                     }
                     
-                    // Yeni resim yüklendiyse eskisini sil
+                    
                     if (!string.IsNullOrEmpty(oldImageUrl))
                     {
                         FileService.DeleteFile(oldImageUrl, _webRootPath);
@@ -156,7 +156,7 @@ namespace Restoran.Core.Business
 
                 var result = await context.SaveChangesAsync() > 0;
                 
-                // Kategori silindiğinde resmi de sil
+               
                 if (result && !string.IsNullOrEmpty(category.ImageUrl))
                 {
                     FileService.DeleteFile(category.ImageUrl, _webRootPath);

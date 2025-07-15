@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Restoran.Core.Business
 {
-    public class BLLJwt // JWT işlemleri için basit sınıf
+    public class BLLJwt 
     {
         private readonly string _secretKey = "RestaurantSystemVerySecretKeyForJWT2024RestaurantSystemVerySecretKey"; // 64 karakter
         private readonly string _issuer = "RestaurantSystem";
@@ -14,14 +14,14 @@ namespace Restoran.Core.Business
 
         public BLLJwt()
         {
-            // DI ile ilgili hiçbir şey burada olmayacak.
+            
         }
 
-        // JWT Token oluştur
+       
         public string GenerateToken(UserDetailDto user)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_secretKey); // UTF8 daha güvenli
+            var key = Encoding.UTF8.GetBytes(_secretKey); 
 
             var claims = new List<Claim>
             {
@@ -37,7 +37,7 @@ namespace Restoran.Core.Business
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(24), // 24 saat (1 gün) daha güvenli
+                Expires = DateTime.UtcNow.AddHours(24), 
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
                 Issuer = _issuer,
                 Audience = _audience
@@ -47,13 +47,13 @@ namespace Restoran.Core.Business
             return tokenHandler.WriteToken(token);
         }
 
-        // JWT Token doğrula
+       
         public ClaimsPrincipal? ValidateToken(string token)
         {
             try
             {
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.UTF8.GetBytes(_secretKey); // UTF8 daha güvenli
+                var key = Encoding.UTF8.GetBytes(_secretKey); 
 
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
@@ -64,7 +64,7 @@ namespace Restoran.Core.Business
                     ValidateAudience = true,
                     ValidAudience = _audience,
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.FromMinutes(5) // 5 dakika tolerance
+                    ClockSkew = TimeSpan.FromMinutes(5) 
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
@@ -76,7 +76,7 @@ namespace Restoran.Core.Business
             }
         }
 
-        // Token'dan kullanıcı ID'si al
+       
         public int? GetUserIdFromToken(string token)
         {
             var principal = ValidateToken(token);
@@ -90,7 +90,7 @@ namespace Restoran.Core.Business
             return null;
         }
 
-        // Token'dan kullanıcı rolünü al
+      
         public string? GetUserRoleFromToken(string token)
         {
             var principal = ValidateToken(token);
@@ -99,7 +99,7 @@ namespace Restoran.Core.Business
             return principal.FindFirst(ClaimTypes.Role)?.Value;
         }
 
-        // Secret key'i dış katmanlara ver (configuration için)
+       
         public string GetSecretKey()
         {
             return _secretKey;

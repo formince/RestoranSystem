@@ -10,7 +10,7 @@ namespace Restoran.Core.Statics.Enums
     {
         Guest = 1,      
         Customer = 2,   
-        Admin = 3,      
-        Staff = 4       
+        Admin = 3     
+               
     }
 }

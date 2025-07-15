@@ -9,7 +9,7 @@ namespace Restoran.Core.Integrations.Services
     public static class FileService
     {
         private static readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png" };
-        private static readonly long _maxFileSize = 5 * 1024 * 1024; // 5MB
+        private static readonly long _maxFileSize = 5 * 1024 * 1024; 
         private static readonly string _uploadPath = "uploads";
 
         public static (bool Success, string Message, string? FileName) SaveFile(byte[] fileData, string fileName, string webRootPath = "")

@@ -91,22 +91,11 @@ namespace Restoran.Web.Controllers
             var bll = new BLLProduct();
 
             // Ürün detaylarını çek
-            var productDetail = await bll.GetProductByIdAsync(id);
+            var productUpdateDto = await bll.GetProductByIdAsync(id);
 
-            if (productDetail == null)
+            if (productUpdateDto == null)
                 return NotFound();
-
-            // ProductDetailDto'yu ProductUpdateDto'ya dönüştür
-            var productUpdateDto = new ProductUpdateDto
-            {
-                Id = productDetail.Id,
-                Name = productDetail.Name,
-                Description = productDetail.Description,
-                Price = productDetail.Price,
-                StockQuantity = productDetail.StockQuantity,
-                ImageUrl = productDetail.ImageUrl,
-                CategoryId = productDetail.CategoryId
-            };
+           
 
             // Kategorileri çekip ViewBag'e koy
             var categoryBll = new BLLCategory();
@@ -122,7 +111,7 @@ namespace Restoran.Web.Controllers
         {
             if(!ModelState.IsValid)
             {
-                // Hata durumunda kategorileri tekrar yükle
+                
                 var categoryBll = new BLLCategory();
                 var categories = await categoryBll.GetCategoriesAsync();
                 ViewBag.Categories = categories;
@@ -222,7 +211,7 @@ namespace Restoran.Web.Controllers
         public async Task<IActionResult> Orders()
         {
             var bll = new BLLOrder();
-            var orders = await bll.GetOrdersAsync(); // tüm siparişleri getir
+            var orders = await bll.GetOrdersAsync(); 
             ViewData["Title"] = "Siparişler";
             return View(orders);
         }
@@ -286,19 +275,10 @@ namespace Restoran.Web.Controllers
         public async Task<IActionResult> UpdateTable(int id)
         {
             var bll = new BLLTable();
-            var tableDetail = await bll.GetTableByIdAsync(id);
+            var tableUpdateDto = await bll.GetTableByIdAsync(id);
 
-            if (tableDetail == null)
-                return NotFound();
-
-            // TableDetailDto'yu TableUpdateDto'ya dönüştür
-            var tableUpdateDto = new TableUpdateDto
-            {
-                Id = tableDetail.Id,
-                TableNumber = tableDetail.TableNumber,
-                Capacity = tableDetail.Capacity,
-                IsAvailable = tableDetail.IsAvailable
-            };
+            if (tableUpdateDto == null)
+                return NotFound();            
 
             ViewData["Title"] = "Masa Güncelle";
             return View(tableUpdateDto);
@@ -375,25 +355,14 @@ namespace Restoran.Web.Controllers
         public async Task<IActionResult> UpdateUser(int id)
         {
             var bll = new BLLUser();
-            var user = await bll.GetUserByIdAsync(id);
+            var userDto = await bll.GetUserByIdAsync(id);
 
-            if (user == null)
+            if (userDto == null)
                 return NotFound();
-
-            // UserDetailDto'yu UserUpdateDto'ya map edelim
-            var updateDto = new UserUpdateDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Username = user.Username,
-                Email = user.Email,
-                Phone = user.Phone,
-                Role = user.Role
-            };
+        
 
             ViewData["Title"] = "Kullanıcı Güncelle";
-            return View(updateDto);
+            return View(userDto);
         }
 
         [HttpPost]

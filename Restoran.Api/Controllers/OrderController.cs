@@ -34,7 +34,7 @@ namespace Restoran.Api.Controllers
 
             var orderBLL = new BLLOrder();
             var result = await orderBLL.CreateOrderAsync(dto);
-            return HandleResult(result);
+            return HandleResult(result,"başarıyla oluşturuldu");
         }
 
         [HttpDelete("{id}")]

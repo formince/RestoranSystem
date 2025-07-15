@@ -88,7 +88,7 @@ namespace Restoran.Core.Business
                     DisplayOrder = 0
                 };
 
-                // Resim yükleme işlemi
+                
                 if (imageData != null && imageFileName != null)
                 {
                     var fileResult = FileService.SaveFile(imageData, imageFileName, _webRootPath);
@@ -128,7 +128,7 @@ namespace Restoran.Core.Business
                 product.Description = dto.Description;
                 product.StockQuantity = dto.StockQuantity;
 
-                // Resim güncelleme işlemi
+              
                 if (imageData != null && imageFileName != null)
                 {
                     var fileResult = FileService.SaveFile(imageData, imageFileName, _webRootPath);
@@ -137,7 +137,7 @@ namespace Restoran.Core.Business
                         return (false, fileResult.Message);
                     }
                     
-                    // Yeni resim yüklendiyse eskisini sil
+                 
                     if (!string.IsNullOrEmpty(oldImageUrl))
                     {
                         FileService.DeleteFile(oldImageUrl, _webRootPath);
@@ -169,7 +169,7 @@ namespace Restoran.Core.Business
 
                 var result = await context.SaveChangesAsync() > 0;
                 
-                // Ürün silindiğinde resmi de sil
+             
                 if (result && !string.IsNullOrEmpty(product.ImageUrl))
                 {
                     FileService.DeleteFile(product.ImageUrl, _webRootPath);

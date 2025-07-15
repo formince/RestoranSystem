@@ -11,11 +11,11 @@ using System.Threading.Tasks;
 
 namespace Restoran.Core.Business
 {
-    public class BLLReservation // Sınıf adı BLLReservation olarak değiştirildi
+    public class BLLReservation 
     {
         public BLLReservation()
         {
-            // DI ile ilgili hiçbir şey burada olmayacak.
+           
         }
 
         private RestaurantDbContext CreateContext()
@@ -79,23 +79,23 @@ namespace Restoran.Core.Business
         {
             using var context = CreateContext();
 
-            // 1. Gelecek tarih kontrolü
+           
             if (!IsFutureDate(dto.EndDateTime))
                 return (false, "Geçmiş tarih için rezervasyon yapılamaz");
 
-            // 2. Çalışma saatleri kontrolü
+            
             if (!IsWorkingHours(dto.EndDateTime))
                 return (false, "Çalışma saatleri 09:00 - 22:00 arasındadır");
 
-            // 3. Masa müsait mi?
+            
             if (!await IsTableAvailableAsync(dto.TableId, dto.StartDateTime,dto.EndDateTime))
                 return (false, "Bu masa seçilen tarih ve saatte müsait değil");
 
-            // 4. Masa kapasitesi yeterli mi?
+            
             if (!await IsTableCapacityOkAsync(dto.TableId, dto.NumberOfGuests))
                 return (false, "Masa kapasitesi kişi sayısı için yeterli değil");
 
-            // Tüm kontroller geçti, rezervasyon oluştur
+           
             var reservation = new Reservation
             {
                 CustomerName = dto.CustomerName,
@@ -142,7 +142,7 @@ namespace Restoran.Core.Business
             return await context.SaveChangesAsync() > 0;
         }
 
-        // Validation methodları
+        
         private async Task<bool> IsTableAvailableAsync(int tableId, DateTime newStart, DateTime newEnd)
         {
             using var context = CreateContext();
@@ -168,7 +168,7 @@ namespace Restoran.Core.Business
         private bool IsWorkingHours(DateTime reservationDateTime)
         {
             var hour = reservationDateTime.Hour;
-            return hour >= 9 && hour <= 22; // 09:00 - 22:00 arası
+            return hour >= 9 && hour <= 22; 
         }
 
         private bool IsFutureDate(DateTime reservationDateTime)

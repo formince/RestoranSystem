@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Restoran.Core.Business
 {
-    public class BLLTable // Sınıf adı BLLTable olarak değiştirildi
+    public class BLLTable 
     {
         public BLLTable()
         {
-            // DI ile ilgili hiçbir şey burada olmayacak.
+           
         }
 
         private RestaurantDbContext CreateContext()
@@ -63,11 +63,11 @@ namespace Restoran.Core.Business
         {
             using var context = CreateContext();
 
-            // 1. Masa numarası benzersiz mi kontrolü
+           
             if (!await IsTableNumberUniqueAsync(dto.TableNumber))
                 return (false, $"'{dto.TableNumber}' masa numarası zaten kullanılıyor");
 
-            // 2. Kapasite kontrolü
+           
             if (dto.Capacity <= 0)
                 return (false, "Masa kapasitesi 0'dan büyük olmalıdır");
 
@@ -90,11 +90,11 @@ namespace Restoran.Core.Business
             var table = await context.Tables.FindAsync(id);
             if (table == null) return (false, "Masa bulunamadı");
 
-            // 1. Masa numarası benzersiz mi kontrolü (kendi ID'si hariç)
+           
             if (!await IsTableNumberUniqueAsync(dto.TableNumber, id))
                 return (false, $"'{dto.TableNumber}' masa numarası zaten kullanılıyor");
 
-            // 2. Kapasite kontrolü
+           
             if (dto.Capacity <= 0)
                 return (false, "Masa kapasitesi 0'dan büyük olmalıdır");
 
@@ -118,7 +118,7 @@ namespace Restoran.Core.Business
             return await context.SaveChangesAsync() > 0;
         }
 
-        // Validation methodları
+       
         private async Task<bool> IsTableNumberUniqueAsync(string tableNumber, int? excludeId = null)
         {
             using var context = CreateContext();

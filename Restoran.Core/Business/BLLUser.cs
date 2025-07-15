@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Restoran.Core.Business
 {
-    public class BLLUser // Sınıf adı BLLUser olarak değiştirildi
+    public class BLLUser 
     {
         public BLLUser()
         {
-            // DI ile ilgili hiçbir şey burada olmayacak.
+           
         }
 
         private RestaurantDbContext CreateContext()
@@ -68,7 +68,7 @@ namespace Restoran.Core.Business
         {
             using var context = CreateContext();
 
-            // Şifre hash'leme için BLLAuth kullan
+            
             var authBll = new BLLAuth();
             var registerResult = await authBll.RegisterAsync(dto);
             
@@ -104,7 +104,7 @@ namespace Restoran.Core.Business
             return await context.SaveChangesAsync() > 0;
         }
 
-        // Şifre değiştirme metodu - basit versiyon
+        
         public async Task<(bool Success, string Message)> ChangePasswordAsync(int userId, string oldPassword, string newPassword)
         {
             using var context = CreateContext();
@@ -114,16 +114,16 @@ namespace Restoran.Core.Business
 
             var authBll = new BLLAuth();
             
-            // Eski şifre kontrolü
+           
             var loginDto = new UserLoginDto { Username = user.Username, Password = oldPassword };
             var loginResult = await authBll.LoginAsync(loginDto);
             if (loginResult == null) return (false, "Mevcut şifre yanlış");
 
-            // Basit şifre kontrolü
+           
             if (string.IsNullOrEmpty(newPassword) || newPassword.Length < 6)
                 return (false, "Yeni şifre en az 6 karakter olmalıdır");
 
-            // Yeni şifre hash'le ve kaydet - BCrypt ile
+            
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
             var success = await context.SaveChangesAsync() > 0;
             
