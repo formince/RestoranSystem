@@ -182,5 +182,35 @@ namespace Restoran.Core.Business
                 return (false, $"Hata: {ex.Message}");
             }
         }
+
+        public async Task<List<ProductListDto>> GetProductsByIdsAsync(List<int> ids)
+        {
+            using var context = CreateContext();
+            return await context.Products
+                .Where(p => ids.Contains(p.Id))
+                .Select(p => new ProductListDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Price = p.Price,
+                    ImageUrl = FileService.GetFileUrl(p.ImageUrl),
+                    StockQuantity = p.StockQuantity
+                }).ToListAsync();
+        }
+
+        public async  Task<List<ProductListDto>> Search(string keyword)
+        {
+            using var context = CreateContext();
+            return await  context.Products
+                .Where(p => p.Name.Contains(keyword) || p.Description.Contains(keyword))
+                .Select(p => new ProductListDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,                    
+                    Price = p.Price,
+                    ImageUrl = FileService.GetFileUrl(p.ImageUrl)
+                }).ToListAsync();
+           
+        }
     }
 }

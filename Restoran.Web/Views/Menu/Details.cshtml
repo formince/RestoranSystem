@@ -1,0 +1,136 @@
+﻿@model Restoran.Core.DTOs.Product.ProductDetailDto
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Ürün Detayı";
+}
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="@Model.ImageUrl" alt="@Model.Name" class="img-fluid rounded shadow" style="max-height: 400px; object-fit: cover; width: 100%;">
+        </div>
+        <div class="col-md-6">
+            <h2 class="mb-3">@Model.Name</h2>
+            <h4 class="text-primary mb-3">@Model.Price.ToString("C2")</h4>
+            <p class="mb-4">@Model.Description</p>
+            
+            <!-- Alert Messages -->
+            <div id="alertContainer"></div>
+
+            <div class="d-flex align-items-center mb-4">
+                <label class="form-label me-3 mb-0">Miktar:</label>
+                <div class="input-group" style="width: 150px;">
+                    <button class="btn btn-outline-secondary" type="button" id="decreaseBtn">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <input type="number" class="form-control text-center" id="quantityInput" value="1" min="1" max="99">
+                    <button class="btn btn-outline-secondary" type="button" id="increaseBtn">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-block">
+                <button class="btn btn-success btn-lg" id="addToCartBtn" data-product-id="@Model.Id">
+                    <i class="fas fa-cart-plus"></i> Sepete Ekle
+                </button>
+                <a href="@Url.Action("Cart", "Cart")" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-shopping-cart"></i> Sepeti Görüntüle
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Miktar artırma
+            $('#increaseBtn').click(function () {
+                const input = $('#quantityInput');
+                const currentVal = parseInt(input.val());
+                if (currentVal < 99) {
+                    input.val(currentVal + 1);
+                }
+            });
+
+            // Miktar azaltma
+            $('#decreaseBtn').click(function () {
+                const input = $('#quantityInput');
+                const currentVal = parseInt(input.val());
+                if (currentVal > 1) {
+                    input.val(currentVal - 1);
+                }
+            });
+
+            // Manuel miktar değişikliği kontrolü
+            $('#quantityInput').change(function () {
+                const quantity = parseInt($(this).val());
+                if (quantity < 1 || isNaN(quantity)) {
+                    $(this).val(1);
+                } else if (quantity > 99) {
+                    $(this).val(99);
+                }
+            });
+
+            // Sepete ekleme
+            $('#addToCartBtn').click(function () {
+                const productId = $(this).data('product-id');
+                const quantity = parseInt($('#quantityInput').val());
+
+                // Buton durumunu değiştir
+                const button = $(this);
+                const originalText = button.html();
+                button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Ekleniyor...');
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: quantity
+                    },
+                    success: function (response) {
+                        // Başarı mesajı göster
+                        showAlert('Ürün sepetinize eklendi!', 'success');
+                        
+                        // Miktar inputunu sıfırla
+                        $('#quantityInput').val(1);
+                        
+                        // Toast bildirimi göster
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Ürün sepete eklendi!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    },
+                    error: function () {
+                        showAlert('Ürün sepete eklenirken hata oluştu.', 'danger');
+                    },
+                    complete: function () {
+                        // Buton durumunu eski haline getir
+                        button.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+
+        function showAlert(message, type) {
+            const alert = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alert);
+
+            setTimeout(() => {
+                $('.alert').fadeOut();
+            }, 3000);
+        }
+    </script>
+}

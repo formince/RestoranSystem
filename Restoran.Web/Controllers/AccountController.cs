@@ -23,10 +23,10 @@ namespace Restoran.Web.Controllers
             var userBll = new BLLAuth();
             var result = await userBll.LoginAsync(userLoginDto);
 
-            if (User == null)
+            if (result == null)
             {
                 ModelState.AddModelError("", "Kullanıcı adı veya şifre hatalı");
-                return View();
+                return View(userLoginDto);
             }
 
             // Giriş başarılı ise kullanıcı bilgilerini oturuma kaydet

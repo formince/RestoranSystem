@@ -32,19 +32,8 @@ namespace Restoran.Web.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public async Task<IActionResult> CreateReservation(ReservationCreateDto reservationCreateDto)
-        {
-           var bllreservation = new BLLReservation();
-              var result = await bllreservation.CreateReservationAsync(reservationCreateDto);
+        
 
-
-            return View(result);
-
-        }
-
-        private RestaurantDbContext CreateContext()
-        {          
-               return new Restoran.Core.Data.RestoranDbContextFactory().CreateDbContext();
-        }
+      
     }
 }

@@ -1,0 +1,167 @@
+﻿@model List<Restoran.Core.DTOs.Product.ProductListDto>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Menü";
+}
+
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-utensils text-primary"></i> Menü
+        </h2>
+        <a href="@Url.Action("Cart", "Cart")" class="btn btn-outline-success">
+            <i class="fas fa-shopping-cart"></i> Sepetim
+        </a>
+    </div>
+
+    <!-- Alert Messages -->
+    <div id="alertContainer"></div>
+
+    <form asp-controller="Menu" asp-action="Search" method="post" class="mb-4 d-flex" role="search">
+        <input type="text" name="keyword" class="form-control me-2" placeholder="Ürün ara..." aria-label="Ürün ara">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-search"></i> Ara
+        </button>
+    </form>
+
+    <div class="row g-4">
+        @if (!Model.Any())
+        {
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <i class="fas fa-search text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3">Aradığınız kriterlere uygun ürün bulunamadı.</p>
+                </div>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 col-sm-6">
+                    <div class="card h-100 shadow-sm product-card">
+                        <img src="@item.ImageUrl" class="card-img-top" alt="@item.Name" style="height:200px; object-fit:cover;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">@item.Name</h5>
+                            <p class="text-muted small mb-3">Stok: @item.StockQuantity adet</p>
+                            
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold text-primary fs-5">@item.Price.ToString("C2")</span>
+                                    <span class="badge bg-success">Mevcut</span>
+                                </div>
+                                
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success btn-sm add-to-cart-btn" 
+                                            data-product-id="@item.Id" 
+                                            data-product-name="@item.Name">
+                                        <i class="fas fa-cart-plus"></i> Sepete Ekle
+                                    </button>
+                                    <a href="/Menu/Details/@item.Id" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i> Detay Görüntüle
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Sepete hızlı ekleme
+            $(document).on('click', '.add-to-cart-btn', function () {
+                const button = $(this);
+                const productId = button.data('product-id');
+                const productName = button.data('product-name');
+                const originalText = button.html();
+
+                // Buton durumunu değiştir
+                button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Ekleniyor...');
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Cart")',
+                    type: 'POST',
+                    data: {
+                        productId: productId,
+                        quantity: 1
+                    },
+                    success: function (response) {
+                        // Toast bildirimi göster
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: `${productName} sepete eklendi!`,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+
+                        // Geçici buton metni değişikliği
+                        button.html('<i class="fas fa-check"></i> Eklendi!').removeClass('btn-success').addClass('btn-outline-success');
+                        
+                        setTimeout(() => {
+                            button.html(originalText).removeClass('btn-outline-success').addClass('btn-success');
+                        }, 1500);
+                    },
+                    error: function () {
+                        showAlert(`${productName} sepete eklenirken hata oluştu.`, 'danger');
+                    },
+                    complete: function () {
+                        // Buton durumunu aktif et
+                        button.prop('disabled', false);
+                    }
+                });
+            });
+
+            // Hover effect for product cards
+            $('.product-card').hover(
+                function() {
+                    $(this).addClass('shadow');
+                    $(this).css('transform', 'translateY(-5px)');
+                },
+                function() {
+                    $(this).removeClass('shadow');
+                    $(this).css('transform', 'translateY(0)');
+                }
+            );
+        });
+
+        function showAlert(message, type) {
+            const alert = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            $('#alertContainer').html(alert);
+
+            setTimeout(() => {
+                $('.alert').fadeOut();
+            }, 3000);
+        }
+    </script>
+}
+
+<style>
+    .product-card {
+        transition: all 0.3s ease;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .card-img-top {
+        transition: transform 0.3s ease;
+    }
+    
+    .product-card:hover .card-img-top {
+        transform: scale(1.05);
+    }
+</style>

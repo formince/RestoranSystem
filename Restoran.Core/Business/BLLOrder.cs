@@ -79,60 +79,81 @@ public class BLLOrder
     {
         using var context = CreateContext();
 
-       
         if (dto.Items == null || dto.Items.Count == 0)
             return (false, "Sipariş boş olamaz");
 
-       
+        // Ürün bilgilerini database'den al
+        var productIds = dto.Items.Select(x => x.ProductId).ToList();
+        var products = await context.Products
+            .Where(p => productIds.Contains(p.Id))
+            .ToListAsync();
+
+        // Validation - ürün kontrolü
         foreach (var item in dto.Items)
         {
-            if (!await IsProductActiveAsync(item.ProductId))
-                return (false, $"'{item.ProductName}' ürünü aktif değil");
+            var product = products.FirstOrDefault(p => p.Id == item.ProductId);
+            if (product == null)
+                return (false, $"Ürün bulunamadı (ID: {item.ProductId})");
+
+            if (!product.IsActive)
+                return (false, $"'{product.Name}' ürünü aktif değil");
                 
-            if (!await IsStockAvailableAsync(item.ProductId, item.Quantity))
-                return (false, $"'{item.ProductName}' ürünü için yeterli stok yok");
+            if (product.StockQuantity < item.Quantity)
+                return (false, $"'{product.Name}' ürünü için yeterli stok yok (Mevcut: {product.StockQuantity})");
         }
 
-       
-        var totalAmount = CalculateTotalAmount(dto.Items);
+        // Toplam tutarı hesapla (database'deki güncel fiyatlarla)
+        decimal totalAmount = 0;
+        foreach (var item in dto.Items)
+        {
+            var product = products.First(p => p.Id == item.ProductId);
+            totalAmount += product.Price * item.Quantity;
+        }
+
         if (!IsMinimumOrderAmountOk(totalAmount))
             return (false, "Minimum sipariş tutarı 50 TL olmalıdır");
 
-        
-        var order = new Order
+        try
         {
-            UserId = dto.UserId,
-            OrderDate = DateTime.Now,
-            OrderNumber = GenerateOrderNumber(),
-            TotalAmount = totalAmount
-        };
-
-        await context.Orders.AddAsync(order);
-        await context.SaveChangesAsync();
-
-        
-        foreach (var item in dto.Items)
-        {
-            // Stok azalt
-            var product = await context.Products.FindAsync(item.ProductId);
-            if (product != null)
+            // Sipariş oluştur
+            var order = new Order
             {
+                UserId = dto.UserId,
+                OrderDate = DateTime.Now,
+                OrderNumber = GenerateOrderNumber(),
+                TotalAmount = totalAmount,
+                Status = Statics.Enums.OrderStatus.Pending
+            };
+
+            await context.Orders.AddAsync(order);
+            await context.SaveChangesAsync();
+
+            // Sipariş detaylarını ekle ve stokları güncelle
+            foreach (var item in dto.Items)
+            {
+                var product = products.First(p => p.Id == item.ProductId);
+                
+                // Stok azalt
                 product.StockQuantity -= item.Quantity;
+
+                // Sipariş detayı ekle
+                var orderDetail = new OrderDetail
+                {
+                    OrderId = order.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = product.Price // Database'deki güncel fiyatı kullan
+                };
+                await context.OrderDetails.AddAsync(orderDetail);
             }
 
-            // Sipariş detayı ekle
-            var orderDetail = new OrderDetail
-            {
-                OrderId = order.Id,
-                ProductId = item.ProductId,
-                Quantity = item.Quantity,
-                UnitPrice = item.UnitPrice
-            };
-            await context.OrderDetails.AddAsync(orderDetail);
+            var success = await context.SaveChangesAsync() > 0;
+            return success ? (true, "Sipariş başarıyla oluşturuldu") : (false, "Sipariş oluşturulamadı");
         }
-
-        var success = await context.SaveChangesAsync() > 0;
-        return success ? (true, "Sipariş başarıyla oluşturuldu") : (false, "Sipariş oluşturulamadı");
+        catch (Exception ex)
+        {
+            return (false, $"Sipariş oluşturulurken hata: {ex.Message}");
+        }
     }
 
     public async Task<bool> DeleteOrderAsync(int id)
@@ -152,27 +173,7 @@ public class BLLOrder
         return $"ORD{DateTime.Now:yyyyMMddHHmmss}";
     }
 
-    private decimal CalculateTotalAmount(List<OrderItemDto> items)
-    {
-        return items.Sum(item => item.Quantity * item.UnitPrice);
-    }
 
-    // Validation methodları
-    private async Task<bool> IsStockAvailableAsync(int productId, int quantity)
-    {
-        using var context = CreateContext();
-        
-        var product = await context.Products.FindAsync(productId);
-        return product != null && product.StockQuantity >= quantity;
-    }
-
-    private async Task<bool> IsProductActiveAsync(int productId)
-    {
-        using var context = CreateContext();
-        
-        var product = await context.Products.FindAsync(productId);
-        return product != null && product.IsActive;
-    }
 
     private bool IsMinimumOrderAmountOk(decimal totalAmount)
     {
