@@ -3,28 +3,36 @@ $source = "C:\Users\Yunus\source\repos\RestoranSistemi\Restoran.Web\bin\Debug\ne
 # Hedef: Test klasörü
 $target = "C:\Users\Yunus\Desktop\TestDeploy"
 
+# Renkli mesaj için
+function Write-Success($message) { Write-Host "✅ $message" -ForegroundColor Green }
+function Write-WarningMsg($message) { Write-Host "⚠️ $message" -ForegroundColor Yellow }
+function Write-ErrorMsg($message) { Write-Host "❌ $message" -ForegroundColor Red }
+
 # Eski dosyaları temizle
 if (Test-Path $target) {
     Remove-Item "$target\*" -Recurse -Force
-    Write-Host "Eski dosyalar temizlendi."
+    Write-Success "Eski dosyalar temizlendi."
 } else {
     New-Item -ItemType Directory -Path $target
-    Write-Host "Test deploy klasörü oluşturuldu."
+    Write-Success "Test deploy klasörü oluşturuldu."
 }
 
-# Yeni dosyaları kopyala ve her dosyayı yazdır
+# Dosyaları kopyala ve logla
 Get-ChildItem -Path $source -Recurse | ForEach-Object {
     $dest = $_.FullName.Replace($source, $target)
     if ($_.PSIsContainer) {
         if (-not (Test-Path $dest)) { 
             New-Item -ItemType Directory -Path $dest | Out-Null
-            Write-Host "Klasör oluşturuldu: $dest"
+            Write-Success "Klasör oluşturuldu: $dest"
         }
     } else {
-        Copy-Item $_.FullName $dest
-        Write-Host "Kopyalandı: $($_.FullName) -> $dest"
+        try {
+            Copy-Item $_.FullName $dest -ErrorAction Stop
+            Write-Success "Kopyalandı: $($_.FullName) -> $dest"
+        } catch {
+            Write-ErrorMsg "Kopyalanamadı: $($_.FullName) -> $dest"
+        }
     }
 }
 
-# IIS restart simülasyonu
-Write-Host "Deploy tamamlandı! (IIS restart simülasyonu)"
+Write-Success "🎉 Deploy tamamlandı! (IIS restart simülasyonu)"
