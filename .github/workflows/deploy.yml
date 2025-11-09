@@ -1,0 +1,25 @@
+name: Local CI/CD Test
+
+on:
+  push:
+    branches:
+      - main  # Bu branch'e push yapınca tetiklenecek
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Build & Publish
+      run: dotnet publish ./Restoran.Web/Restoran.Web.csproj -c Debug -o ./publish
+
+    - name: Run deploy script
+      run: powershell -ExecutionPolicy Bypass -File .\deploy.ps1
