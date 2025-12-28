@@ -2,13 +2,11 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Restoran.Core.Data;
-
+System.Console.WriteLine(" Program dosyasý yüklendi");
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
-Console.WriteLine(" Logging aktif");
+System.Console.WriteLine(" Builder oluþturuldu");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -65,5 +63,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
+System.Console.WriteLine(" App run ediliyor");
 app.Run();
