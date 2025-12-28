@@ -5,6 +5,11 @@ using Restoran.Core.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+Console.WriteLine(" Logging aktif");
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
