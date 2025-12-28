@@ -18,13 +18,13 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore RestoranSistemi/Restoran.Web/Restoran.Web.csproj
+        run: dotnet restore Restoran.Web/Restoran.Web.csproj
 
       - name: Build
-        run: dotnet build RestoranSistemi/Restoran.Web/Restoran.Web.csproj -c Release --no-restore
+        run: dotnet build Restoran.Web/Restoran.Web.csproj -c Release --no-restore
 
       - name: Publish
-        run: dotnet publish RestoranSistemi/Restoran.Web/Restoran.Web.csproj -c Release -o publish
+        run: dotnet publish Restoran.Web/Restoran.Web.csproj -c Release -o publish
 
       - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
