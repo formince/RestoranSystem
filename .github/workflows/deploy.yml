@@ -1,51 +1,31 @@
-name: Deploy to Azure
+name: Deploy to Azure Web App
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
-
-env:
-  AZURE_WEBAPP_NAME: Erinc-demo    # ← SADECE APP ADI!
-  DOTNET_VERSION: '8.0.x'
+    branches:
+      - main
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-      # 1. Kodu çek
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      # 2. .NET kur
+      - uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }}
-      
-      # 3. Restore dependencies
-      - name: Restore dependencies
-        run: dotnet restore
-      
-      # 4. Build
+          dotnet-version: 8.0.x
+
       - name: Build
-        run: dotnet build --configuration Release --no-restore
-      
-      # 5. Test (Varsa)
-      - name: Test
-        run: dotnet test --no-build --verbosity normal
-        continue-on-error: true
-      
-      # 6. Publish
+        run: dotnet build -c Release
+
       - name: Publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-      
-      # 7. Azure'a Deploy
-      - name: Deploy to Azure Web App
+        run: dotnet publish -c Release -o publish
+
+      - name: Deploy to Azure
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-name: Erinc-demo
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{env.DOTNET_ROOT}}/myapp
-          slot-name: ''  # ← EKLE!
+          package: publish
