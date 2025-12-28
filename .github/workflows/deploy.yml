@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_WEBAPP_NAME: Erinc-demo    
+  AZURE_WEBAPP_NAME: Erinc-demo    # ← SADECE APP ADI!
   DOTNET_VERSION: '8.0.x'
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
       
       # 5. Test (Varsa)
       - name: Test
-        run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+        run: dotnet test --no-build --verbosity normal
         continue-on-error: true
       
       # 6. Publish
