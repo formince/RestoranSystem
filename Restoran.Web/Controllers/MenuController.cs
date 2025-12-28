@@ -6,9 +6,17 @@ namespace Restoran.Web.Controllers
     public class MenuController : Controller
     {
 
+        private readonly ILogger<MenuController> _logger;
+       
+        public MenuController(ILogger<MenuController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet]        
         public async  Task<IActionResult> Index()
         {
+            _logger.LogInformation("➡️ DB bağlantısı deneniyor");
             var bll = new BLLProduct();
             var products = await bll.GetProductsAsync();
             ViewData["Title"] = "Menü";
