@@ -1,39 +1,36 @@
 name: 1. Adım - Dosya Kopyalama Testi
 
 on:
-  workflow_dispatch: # Manuel tetikleme (Butonla çalışır)
+  workflow_dispatch: # Manuel tetikleme
 
 jobs:
   deploy-files-only:
-    runs-on: self-hosted # Senin bilgisayarındaki ajan çalışacak
+    runs-on: self-hosted # Senin bilgisayarındaki siyah ekran (Runner) çalışacak
 
     steps:
-    # 1. Kodu GitHub'dan senin bilgisayarına çeker
+    # 1. Kodu GitHub'dan çek
     - name: Kodu Getir
       uses: actions/checkout@v4
 
-    # 2. Projeyi Derle (Publish klasörü oluşturur)
-    # NOT: 'SeninProjen.csproj' yazan yeri kendi proje dosya isminle değiştirmeyi unutma!
+    # 2. Projeyi Derle (PATH DÜZELTİLDİ: Restoran.Web klasörüne bakacak)
     - name: Build ve Publish
-      run: dotnet publish ./SeninProjen.csproj -c Release -o ./publish-output
+      run: dotnet publish ./Restoran.Web/Restoran.Web.csproj -c Release -o ./publish-output
 
-    # 3. Dosyaları Hedef Klasöre Taşı (Robocopy Kullanarak)
+    # 3. Dosyaları Masaüstündeki Klasöre Taşı (Robocopy)
     - name: Dosyaları Kopyala (Hariç Tutma Ayarlı)
       run: |
         echo "Kopyalama işlemi başlıyor..."
         
-        # Hedef klasör yoksa oluşturur
+        # Hedef klasör yoksa oluştur
         if not exist "C:\Users\Yunus\Desktop\testpublish" mkdir "C:\Users\Yunus\Desktop\testpublish"
 
-        # ROBOCOPY KOMUTU AÇIKLAMASI:
-        # Kaynak -> Hedef
-        # /E  : Alt klasörleri de kopyala (Dolu/Boş)
-        # /XO : (Exclude Older) Sadece yeni dosyaları kopyala (İsteğe bağlı, şimdilik her şeyi ezsin diye koymadım ama istersen ekleyebilirsin)
-        # /XF : (Exclude File) Bu dosyaları kopyalama (Mevcut olanı ezme) -> appsettings.json web.config
-        # /XD : (Exclude Directory) Bu klasörleri kopyalama -> uploads
+        # ROBOCOPY KOMUTU:
+        # /E  : Alt klasörler dahil
+        # /XF : appsettings.json ve web.config dosyalarını EZME (Hariç tut)
+        # /XD : uploads klasörünü EZME (Hariç tut)
         
         robocopy "./publish-output" "C:\Users\Yunus\Desktop\testpublish" /E /XF appsettings.json web.config /XD uploads
 
-        # Robocopy'de işlem başarılıysa '1' kodu döner. GitHub bunu hata sanmasın diye 'exit 0' yapıyoruz.
+        # Robocopy başarılı olunca 1 kodu döner, hata sanmasın diye 0 yapıyoruz.
         if %ERRORLEVEL% LEQ 1 exit 0 else exit %ERRORLEVEL%
       shell: cmd
