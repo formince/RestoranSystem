@@ -21,16 +21,16 @@ jobs:
       run: |
         echo "Kopyalama işlemi başlıyor..."
         
-        # Hedef klasör yoksa oluştur
+        
         if not exist "C:\Users\Yunus\Desktop\testpublish" mkdir "C:\Users\Yunus\Desktop\testpublish"
 
-        # ROBOCOPY KOMUTU:
-        # /E  : Alt klasörler dahil
-        # /XF : appsettings.json ve web.config dosyalarını EZME (Hariç tut)
-        # /XD : uploads klasörünü EZME (Hariç tut)
+        
+       
+        
+        
         
         robocopy "./publish-output" "C:\Users\Yunus\Desktop\testpublish" /E /XF appsettings.json web.config /XD uploads
 
-        # Robocopy başarılı olunca 1 kodu döner, hata sanmasın diye 0 yapıyoruz.
+        
         if %ERRORLEVEL% LEQ 1 exit 0 else exit %ERRORLEVEL%
       shell: cmd
