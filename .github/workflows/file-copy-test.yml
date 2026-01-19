@@ -1,0 +1,39 @@
+name: 1. Adım - Dosya Kopyalama Testi
+
+on:
+  workflow_dispatch: # Manuel tetikleme (Butonla çalışır)
+
+jobs:
+  deploy-files-only:
+    runs-on: self-hosted # Senin bilgisayarındaki ajan çalışacak
+
+    steps:
+    # 1. Kodu GitHub'dan senin bilgisayarına çeker
+    - name: Kodu Getir
+      uses: actions/checkout@v4
+
+    # 2. Projeyi Derle (Publish klasörü oluşturur)
+    # NOT: 'SeninProjen.csproj' yazan yeri kendi proje dosya isminle değiştirmeyi unutma!
+    - name: Build ve Publish
+      run: dotnet publish ./SeninProjen.csproj -c Release -o ./publish-output
+
+    # 3. Dosyaları Hedef Klasöre Taşı (Robocopy Kullanarak)
+    - name: Dosyaları Kopyala (Hariç Tutma Ayarlı)
+      run: |
+        echo "Kopyalama işlemi başlıyor..."
+        
+        # Hedef klasör yoksa oluşturur
+        if not exist "C:\Users\Yunus\Desktop\testpublish" mkdir "C:\Users\Yunus\Desktop\testpublish"
+
+        # ROBOCOPY KOMUTU AÇIKLAMASI:
+        # Kaynak -> Hedef
+        # /E  : Alt klasörleri de kopyala (Dolu/Boş)
+        # /XO : (Exclude Older) Sadece yeni dosyaları kopyala (İsteğe bağlı, şimdilik her şeyi ezsin diye koymadım ama istersen ekleyebilirsin)
+        # /XF : (Exclude File) Bu dosyaları kopyalama (Mevcut olanı ezme) -> appsettings.json web.config
+        # /XD : (Exclude Directory) Bu klasörleri kopyalama -> uploads
+        
+        robocopy "./publish-output" "C:\Users\Yunus\Desktop\testpublish" /E /XF appsettings.json web.config /XD uploads
+
+        # Robocopy'de işlem başarılıysa '1' kodu döner. GitHub bunu hata sanmasın diye 'exit 0' yapıyoruz.
+        if %ERRORLEVEL% LEQ 1 exit 0 else exit %ERRORLEVEL%
+      shell: cmd
