@@ -21,36 +21,32 @@ jobs:
     - name: Kodu Getir
       uses: actions/checkout@v4
 
-    # 2. PRE-SQL (Opsiyonel - Kutucuk isaretliyse calisir)
+    # 2. PRE-SQL
     - name: Run Pre-Deployment SQL
       if: ${{ github.event.inputs.run_pre_sql == 'true' }}
       run: |
-        echo "Pre-SQL Script calistiriliyor..."
-        # -d RestaurantRezervation: Senin veritabani adin
+        echo Pre-SQL Script calistiriliyor...
         sqlcmd -S . -d RestaurantRezervation -E -i "./DbScripts/pre-script.sql"
       shell: cmd
 
-    # 3. Build (Restoran.Web yoluna gore ayarli)
+    # 3. Build
     - name: Build ve Publish
       run: dotnet publish ./Restoran.Web/Restoran.Web.csproj -c Release -o ./publish-output
 
-    # 4. Dosya Transferi (Robocopy ile Kopyalama)
+    # 4. Dosya Transferi
     - name: Dosyalari Kopyala
       run: |
         if not exist "C:\Users\Yunus\Desktop\testpublish" mkdir "C:\Users\Yunus\Desktop\testpublish"
         
-        # /XF: Dosyalar haric (ezilmesin)
-        # /XD: Klasorler haric (ezilmesin)
         robocopy "./publish-output" "C:\Users\Yunus\Desktop\testpublish" /E /XF appsettings.json web.config /XD uploads
 
-        # Robocopy basarili kodu 1'dir, hata sanmasin diye 0 yapiyoruz
         if %ERRORLEVEL% LEQ 1 exit 0 else exit %ERRORLEVEL%
       shell: cmd
 
-    # 5. POST-SQL (Opsiyonel - Kutucuk isaretliyse calisir)
+    # 5. POST-SQL
     - name: Run Post-Deployment SQL
       if: ${{ github.event.inputs.run_post_sql == 'true' }}
       run: |
-        echo "Post-SQL Script calistiriliyor..."
+        echo Post-SQL Script calistiriliyor...
         sqlcmd -S . -d RestaurantRezervation -E -i "./DbScripts/post-script.sql"
       shell: cmd
