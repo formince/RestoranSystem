@@ -1,36 +1,56 @@
-name: 1. Adım - Dosya Kopyalama Testi
+name: Full Deploy (SQL + Files)
 
 on:
-  workflow_dispatch: # Manuel tetikleme
+  workflow_dispatch:
+    inputs:
+      run_pre_sql:
+        description: '1. Guncelleme ONCESI SQL scripti calissin mi?'
+        type: boolean
+        default: false
+      run_post_sql:
+        description: '2. Guncelleme SONRASI SQL scripti calissin mi?'
+        type: boolean
+        default: false
 
 jobs:
-  deploy-files-only:
-    runs-on: self-hosted # Senin bilgisayarındaki siyah ekran (Runner) çalışacak
+  deploy-full:
+    runs-on: self-hosted
 
     steps:
-    # 1. Kodu GitHub'dan çek
+    # 1. Kodu Getir
     - name: Kodu Getir
       uses: actions/checkout@v4
 
-    # 2. Projeyi Derle (PATH DÜZELTİLDİ: Restoran.Web klasörüne bakacak)
+    # 2. PRE-SQL (Opsiyonel - Kutucuk isaretliyse calisir)
+    - name: Run Pre-Deployment SQL
+      if: ${{ github.event.inputs.run_pre_sql == 'true' }}
+      run: |
+        echo "Pre-SQL Script calistiriliyor..."
+        # -d RestaurantRezervation: Senin veritabani adin
+        sqlcmd -S . -d RestaurantRezervation -E -i "./DbScripts/pre-script.sql"
+      shell: cmd
+
+    # 3. Build (Restoran.Web yoluna gore ayarli)
     - name: Build ve Publish
       run: dotnet publish ./Restoran.Web/Restoran.Web.csproj -c Release -o ./publish-output
 
-    # 3. Dosyaları Masaüstündeki Klasöre Taşı (Robocopy)
-    - name: Dosyaları Kopyala (Hariç Tutma Ayarlı)
+    # 4. Dosya Transferi (Robocopy ile Kopyalama)
+    - name: Dosyalari Kopyala
       run: |
-        echo "Kopyalama işlemi başlıyor..."
-        
-        
         if not exist "C:\Users\Yunus\Desktop\testpublish" mkdir "C:\Users\Yunus\Desktop\testpublish"
-
         
-       
-        
-        
-        
+        # /XF: Dosyalar haric (ezilmesin)
+        # /XD: Klasorler haric (ezilmesin)
         robocopy "./publish-output" "C:\Users\Yunus\Desktop\testpublish" /E /XF appsettings.json web.config /XD uploads
 
-        
+        # Robocopy basarili kodu 1'dir, hata sanmasin diye 0 yapiyoruz
         if %ERRORLEVEL% LEQ 1 exit 0 else exit %ERRORLEVEL%
+      shell: cmd
+
+    # 5. POST-SQL (Opsiyonel - Kutucuk isaretliyse calisir)
+    - name: Run Post-Deployment SQL
+      if: ${{ github.event.inputs.run_post_sql == 'true' }}
+      run: |
+        echo "Post-SQL Script calistiriliyor..."
+        sqlcmd -S . -d RestaurantRezervation -E -i "./DbScripts/post-script.sql"
       shell: cmd

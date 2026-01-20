@@ -1,0 +1,1 @@
+INSERT INTO LogTablosu (Mesaj) VALUES ('Pre-Script çalýþtý');
